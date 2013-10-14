@@ -1,4 +1,5 @@
 
+require 'json'
 begin
   require 'zk'
 rescue LoadError
@@ -89,6 +90,35 @@ class Chef
       true
     ensure
       ev_sub.unsubscribe
+    end
+
+    def attributes_read(abs_node_path, attributes, key='attributes')
+      attrs, stat = @zk.get(abs_node_path)
+      if attrs.kind_of?(String)
+        attrs = JSON.parse(attrs)
+        unless key.nil?
+          return false unless attrs.has_key?(key)
+          attrs = attrs[key] unless key.nil?
+        end
+        attributes.merge!(attrs)
+        return true
+      end
+      return false
+    rescue JSON::ParserError
+      return false
+    end
+
+    def attributes_write(abs_node_path, attributes, key='attributes')
+      attributes = attributes.to_hash
+      attributes = { key => attributes } unless key.nil?
+      if @zk.exists?(abs_node_path)
+        # TODO: merge with the other json data
+        # TODO: only write when differs
+        @zk.set(abs_node_path, attributes.to_json)
+      else
+        @zk.create(abs_node_path, attributes.to_json)
+      end
+      return true
     end
 
     def close

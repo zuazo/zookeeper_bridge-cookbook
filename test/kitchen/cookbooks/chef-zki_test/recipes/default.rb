@@ -64,6 +64,24 @@ chef_zki_wait '/test/chef_zki' do
   event :none
 end
 
+# test attributes write
+chef_zki_attrs '/test/attributes' do
+  attribute node['zookeeper']
+  action :nothing
+end.run_action(:write)
+
+# test attributes read
+chef_zki_attrs '/test/attributes' do
+  attribute node.normal['zookeeper_read']
+  action :nothing
+end.run_action(:read)
+
+ruby_block 'Attribute read test: ZooKeeper version' do
+  block do
+    raise unless node['zookeeper_read']['version'].kind_of?(String)
+  end
+end
+
 # end clean up
 chef_zki_cli 'delete /test/chef_zki'
 
