@@ -36,7 +36,7 @@ chef_zki_cli 'delete /test/chef_zki'
 
 # test created event
 chef_zki_cli 'create /test/chef_zki more_random_data' do
-  sleep 5
+  sleep 2
   background true
 end
 chef_zki_wait '/test/chef_zki' do
@@ -46,7 +46,7 @@ end
 
 # test changed event
 chef_zki_cli 'set /test/chef_zki update_random_data' do
-  sleep 5
+  sleep 2
   background true
 end
 chef_zki_wait '/test/chef_zki' do
@@ -56,7 +56,7 @@ end
 
 # test deleted event
 chef_zki_cli 'delete /test/chef_zki' do
-  sleep 5
+  sleep 2
   background true
 end
 chef_zki_wait '/test/chef_zki' do
