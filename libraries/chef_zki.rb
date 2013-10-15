@@ -104,18 +104,28 @@ class Chef
         return true
       end
       return false
-    rescue JSON::ParserError
-      return false
     end
 
     def attributes_write(abs_node_path, attributes, key='attributes')
       attributes = attributes.to_hash
-      attributes = { key => attributes } unless key.nil?
       if @zk.exists?(abs_node_path)
-        # TODO: merge with the other json data
-        # TODO: only write when differs
-        @zk.set(abs_node_path, attributes.to_json)
+        # TODO: test this hash merge properly
+        read_data, stat = @zk.get(abs_node_path)
+        if read_data.length > 0
+          read_data = JSON.parse(read_data)
+          unless key.nil?
+            return false if read_data[key] === attributes
+            attributes = read_data[key].merge(attributes)
+          else
+            return false if read_data === attributes
+            attributes = read_data.merge(attributes)
+          end
+        else
+          attributes = { key => attributes } unless key.nil?
+        end
+        @zk.set(abs_node_path, attributes.to_json, :version => stat.version)
       else
+        attributes = { key => attributes } unless key.nil?
         @zk.create(abs_node_path, attributes.to_json)
       end
       return true
