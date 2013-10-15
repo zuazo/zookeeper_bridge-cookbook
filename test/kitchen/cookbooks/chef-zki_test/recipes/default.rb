@@ -67,14 +67,14 @@ end
 # test attributes write
 chef_zki_attrs '/test/attributes' do
   attribute node['zookeeper']
-  action :nothing
-end.run_action(:write)
+  action :write
+end
 
 # test attributes read
 chef_zki_attrs '/test/attributes' do
   attribute node.normal['zookeeper_read']
-  action :nothing
-end.run_action(:read)
+  action :read
+end
 
 ruby_block 'Attribute read test: ZooKeeper version' do
   block do
