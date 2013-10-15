@@ -1,6 +1,7 @@
 
 action :wait do
-  zki = Chef::Zki.new(new_resource.server)
+  server = new_resource.server || node['chef-zki']['zookeeper']['server']
+  zki = Chef::Zki.new(server)
   case new_resource.status.to_sym
   when :created
     zki.block_until_znode_created(new_resource.path)
