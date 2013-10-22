@@ -17,4 +17,7 @@
 # limitations under the License.
 #
 
+node.default['build_essential']['compiletime'] = true
+include_recipe 'build-essential'
+
 chef_gem 'zk'
