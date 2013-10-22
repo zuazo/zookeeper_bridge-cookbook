@@ -115,7 +115,7 @@ class Chef
           read_data = JSON.parse(read_data)
           unless key.nil?
             return false if read_data[key] === attributes
-            attributes = read_data[key].merge(attributes)
+            attributes = read_data.has_key?(key) ? read_data[key].merge(attributes) : attributes
           else
             return false if read_data === attributes
             attributes = read_data.merge(attributes)
