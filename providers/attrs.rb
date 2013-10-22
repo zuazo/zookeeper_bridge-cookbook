@@ -12,13 +12,18 @@ action :read do
 end
 
 action :write do
-  if not new_resource.attribute.kind_of?(Chef::Node::ImmutableMash)
-    raise ArgumentError, "wrong node attribute: you should use readable node attributes like node[...]."
+  if new_resource.attribute.kind_of?(Chef::Node) or new_resource.attribute.kind_of?(Chef::Node::Attribute)
+      attribute = new_resource.attribute.merged_attributes
+  else
+      attribute = new_resource.attribute
+  end
+  if not attribute.kind_of?(Chef::Node::ImmutableMash)
+    raise ArgumentError, "wrong node attribute (#{attribute.class.name}): you should use readable node attributes like node[...]."
   end
   server = new_resource.server || node['chef-zki']['zookeeper']['server']
   zki = Chef::Zki.new(server)
   new_resource.updated_by_last_action(
-    zki.attributes_write(new_resource.path, new_resource.attribute, new_resource.key) === true
+    zki.attributes_write(new_resource.path, attribute, new_resource.key) === true
   )
   zki.close
 end
