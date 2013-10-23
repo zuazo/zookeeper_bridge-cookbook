@@ -92,7 +92,7 @@ class Chef
       ev_sub.unsubscribe
     end
 
-    def attributes_read(abs_node_path, attributes, key='attributes')
+    def attributes_read(abs_node_path, attributes, key=nil)
       attrs, stat = @zk.get(abs_node_path)
       if attrs.kind_of?(String)
         attrs = JSON.parse(attrs)
@@ -106,7 +106,7 @@ class Chef
       return false
     end
 
-    def attributes_write(abs_node_path, attributes, key='attributes')
+    def attributes_write(abs_node_path, attributes, key=nil)
       attributes = attributes.to_hash
       if @zk.exists?(abs_node_path)
         # TODO: test this hash merge properly
