@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: chef-zki
-# Recipe:: default
+# Recipe:: depends
 #
 # Copyright 2013, Onddo Labs, Sl.
 #
@@ -17,4 +17,7 @@
 # limitations under the License.
 #
 
-include_recipe 'chef-zki::depends'
+node.default['build_essential']['compiletime'] = true
+include_recipe 'build-essential'
+
+chef_gem 'zk' # not required in zookeeper_handler recipe, but does not harm

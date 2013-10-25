@@ -20,8 +20,7 @@
 # Notice: include this recipe near the beginning of the node's run list so
 # that the start handler can take effect early on.
 
-node.default['build_essential']['compiletime'] = true
-include_recipe 'build-essential'
+include_recipe 'chef-zki::depends'
 
 # Handler configuration options
 argument_array = [
