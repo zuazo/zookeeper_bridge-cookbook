@@ -28,21 +28,11 @@ argument_array = [
   :znode => "/chef/#{`hostname`.chomp}/status",
 ]
 
-# Download the gem to a local file (should be removed in the future)
-remote_file '/tmp/chef-handler-zookeeper-0.1.0.dev.gem' do
-  source 'http://mirror.onddo.com/chef-handler-zookeeper-0.1.0.dev.gem'
-  mode '0644'
-  action :nothing
-end.run_action(:create)
-
 # Install the `chef-handler-zookeeper` RubyGem during the compile phase
 if defined?(Chef::Resource::ChefGem)
-  chef_gem 'chef-handler-zookeeper' do
-    source '/tmp/chef-handler-zookeeper-0.1.0.dev.gem'
-  end
+  chef_gem 'chef-handler-zookeeper'
 else
   gem_package('chef-handler-zookeeper') do
-    source '/tmp/chef-handler-zookeeper-0.1.0.dev.gem'
     action :nothing
   end.run_action(:install)
 end
