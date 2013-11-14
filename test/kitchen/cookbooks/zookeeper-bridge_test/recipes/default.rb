@@ -1,5 +1,5 @@
 #
-# Cookbook Name:: chef-zki_test
+# Cookbook Name:: zookeeper-bridge_test
 # Recipe:: default
 #
 # Copyright 2013, Onddo Labs, Sl.
@@ -28,50 +28,50 @@ service 'zookeeper' do
   action :start
 end
 
-include_recipe 'chef-zki'
+include_recipe 'zookeeper-bridge'
 
 # start clean up
-chef_zki_cli 'create /test some_random_data'
-chef_zki_cli 'delete /test/chef_zki'
+zookeeper_bridge_cli 'create /test some_random_data'
+zookeeper_bridge_cli 'delete /test/zookeeper_bridge'
 
 # test created event
-chef_zki_cli 'create /test/chef_zki more_random_data' do
+zookeeper_bridge_cli 'create /test/zookeeper_bridge more_random_data' do
   sleep 2
   background true
 end
-chef_zki_wait '/test/chef_zki' do
+zookeeper_bridge_wait '/test/zookeeper_bridge' do
   status :created
   event :none
 end
 
 # test changed event
-chef_zki_cli 'set /test/chef_zki update_random_data' do
+zookeeper_bridge_cli 'set /test/zookeeper_bridge update_random_data' do
   sleep 2
   background true
 end
-chef_zki_wait '/test/chef_zki' do
+zookeeper_bridge_wait '/test/zookeeper_bridge' do
   status :any
   event :changed
 end
 
 # test deleted event
-chef_zki_cli 'delete /test/chef_zki' do
+zookeeper_bridge_cli 'delete /test/zookeeper_bridge' do
   sleep 2
   background true
 end
-chef_zki_wait '/test/chef_zki' do
+zookeeper_bridge_wait '/test/zookeeper_bridge' do
   status :deleted
   event :none
 end
 
 # test attributes write
-chef_zki_attrs '/test/attributes' do
+zookeeper_bridge_attrs '/test/attributes' do
   attribute node['zookeeper']
   action :write
 end
 
 # test attributes read
-chef_zki_attrs '/test/attributes' do
+zookeeper_bridge_attrs '/test/attributes' do
   attribute node.normal['zookeeper_read']
   action :read
 end
@@ -83,5 +83,5 @@ ruby_block 'Attribute read test: ZooKeeper version' do
 end
 
 # end clean up
-chef_zki_cli 'delete /test/chef_zki'
+zookeeper_bridge_cli 'delete /test/zookeeper_bridge'
 

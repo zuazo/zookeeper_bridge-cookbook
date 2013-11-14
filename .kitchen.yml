@@ -23,5 +23,5 @@ platforms:
 
 suites:
 - name: default
-  run_list: ["recipe[chef-zki_test]"]
+  run_list: ["recipe[zookeeper-bridge_test]"]
   attributes: {}

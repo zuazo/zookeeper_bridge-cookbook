@@ -1,5 +1,5 @@
 #
-# Cookbook Name:: chef-zki
+# Cookbook Name:: zookeeper-bridge
 # Recipe:: default
 #
 # Copyright 2013, Onddo Labs, Sl.
@@ -17,4 +17,4 @@
 # limitations under the License.
 #
 
-include_recipe 'chef-zki::depends'
+include_recipe 'zookeeper-bridge::depends'

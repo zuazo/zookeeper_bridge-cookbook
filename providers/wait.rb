@@ -1,6 +1,6 @@
 
 action :wait do
-  server = new_resource.server || node['chef-zki']['zookeeper']['server']
+  server = new_resource.server || node['zookeeper-bridge']['zookeeper']['server']
   zki = Chef::Zki.new(server)
   case new_resource.status.to_sym
   when :created

@@ -1,5 +1,5 @@
 #
-# Cookbook Name:: chef-zki
+# Cookbook Name:: zookeeper-bridge
 # Recipe:: depends
 #
 # Copyright 2013, Onddo Labs, Sl.

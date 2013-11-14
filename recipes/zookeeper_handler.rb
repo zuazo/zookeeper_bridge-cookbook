@@ -1,5 +1,5 @@
 #
-# Cookbook Name:: chef-zki
+# Cookbook Name:: zookeeper-bridge
 # Recipe:: zookeeper_handler
 #
 # Copyright 2013, Onddo Labs, Sl.
@@ -20,11 +20,11 @@
 # Notice: include this recipe near the beginning of the node's run list so
 # that the start handler can take effect early on.
 
-include_recipe 'chef-zki::depends'
+include_recipe 'zookeeper-bridge::depends'
 
 # Handler configuration options
 argument_array = [
-  :server => node['chef-zki']['zookeeper']['server'].to_s,
+  :server => node['zookeeper-bridge']['zookeeper']['server'].to_s,
   :znode => "/chef/#{`hostname`.chomp}/status",
 ]
 
