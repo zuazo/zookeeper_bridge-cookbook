@@ -116,6 +116,8 @@ zookeeper_bridge_attrs "/chef/#{hostname}/write_attributes" do
 end
 ```
 
+**Note:** You need to understand how [compile and converge phases work on Chef Run](http://docs.opscode.com/essentials_nodes_chef_run.html) to know when to use `run_action()`.
+
 ```ruby
 # Reading/Writing Apache attributes
 
