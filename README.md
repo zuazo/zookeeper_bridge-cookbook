@@ -232,8 +232,6 @@ Testing
 
 ## Requirements
 
-TODO
-
 * `vagrant`
 * `berkshelf`
 * `test-kitchen` >= `1.0.0.beta.1`
