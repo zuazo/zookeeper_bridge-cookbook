@@ -34,7 +34,7 @@ class Chef
           force_encoding(i, encoding)
         end
       elsif o.kind_of?(String)
-        o.force_encoding(encoding)
+        o.dup.force_encoding(encoding)
       else
         o
       end
