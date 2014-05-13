@@ -94,6 +94,11 @@ Used to read or write Chef Node attributes from or to ZooKeeper znode paths. The
     <td>JSON sub-key to use for storing the attributes. This key is merged with the other JSON keys that currently exists in the znode. By default no key is used: attributes are at a root level JSON object.</td>
     <td><code>nil</code></td>
   </tr>
+  <tr>
+    <td>force_encoding</td>
+    <td>Force character encoding. For example: <code>"UTF-8"</code></td>
+    <td><code>nil</code></td>
+  </tr>
 </table>
 
 ### zookeeper_bridge_attrs example

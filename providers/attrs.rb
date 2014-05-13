@@ -6,7 +6,7 @@ action :read do
   server = new_resource.server || node['zookeeper-bridge']['zookeeper']['server']
   zki = Chef::Zki.new(server)
   new_resource.updated_by_last_action(
-    zki.attributes_read(new_resource.path, new_resource.attribute, new_resource.key) === true
+    zki.attributes_read(new_resource.path, new_resource.attribute, new_resource.key, new_resource.force_encoding) === true
   )
   zki.close
 end
@@ -23,7 +23,7 @@ action :write do
   server = new_resource.server || node['zookeeper-bridge']['zookeeper']['server']
   zki = Chef::Zki.new(server)
   new_resource.updated_by_last_action(
-    zki.attributes_write(new_resource.path, attribute, new_resource.key) === true
+    zki.attributes_write(new_resource.path, attribute, new_resource.key, new_resource.force_encoding) === true
   )
   zki.close
 end

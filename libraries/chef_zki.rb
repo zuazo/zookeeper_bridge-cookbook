@@ -19,6 +19,29 @@ class Chef
       end
     end
 
+    private
+
+    def force_encoding(o, encoding='UTF-8')
+      if o.kind_of?(Hash)
+        Hash[o.map do |k, v|
+          [
+            force_encoding(k, encoding),
+            force_encoding(v, encoding),
+          ]
+        end]
+      elsif o.kind_of?(Array)
+        o.map do |i|
+          force_encoding(i, encoding)
+        end
+      elsif o.kind_of?(String)
+        o.force_encoding(encoding)
+      else
+        o
+      end
+    end
+
+    public
+
     def initialize(server)
       Chef::Zki::Depends.load
       @zk = ZK.new(server)
@@ -92,8 +115,11 @@ class Chef
       ev_sub.unsubscribe
     end
 
-    def attributes_read(abs_node_path, attributes, key=nil)
+    def attributes_read(abs_node_path, attributes, key=nil, force_encoding=nil)
       attrs, stat = @zk.get(abs_node_path)
+      unless force_encoding.nil?
+        attrs = force_encoding(attrs, force_encoding)
+      end
       if attrs.kind_of?(String)
         attrs = JSON.parse(attrs)
         unless key.nil?
@@ -106,8 +132,11 @@ class Chef
       return false
     end
 
-    def attributes_write(abs_node_path, attributes, key=nil)
+    def attributes_write(abs_node_path, attributes, key=nil, force_encoding=nil)
       attributes = attributes.to_hash
+      unless force_encoding.nil?
+        attributes = force_encoding(attributes, force_encoding)
+      end
       if @zk.exists?(abs_node_path)
         # TODO: test this hash merge properly
         read_data, stat = @zk.get(abs_node_path)
