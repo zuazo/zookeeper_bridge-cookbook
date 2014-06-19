@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 
-node.default['build_essential']['compiletime'] = true
+node.default['build-essential']['compiletime'] = true
 include_recipe 'build-essential'
 
 chef_gem 'zk' # not required in zookeeper_handler recipe, but does not harm

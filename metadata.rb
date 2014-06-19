@@ -10,7 +10,7 @@ supports 'debian'
 supports 'ubuntu'
 supports 'centos'
 
-depends 'build-essential'
+depends 'build-essential', '~> 2.0'
 depends 'chef_handler'
 
 recipe 'zookeeper-bridge::default', 'Minimum recipe required to use the providers.'
