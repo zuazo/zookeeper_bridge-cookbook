@@ -37,6 +37,11 @@ Attributes
     <td>Zookeeper server address.</td>
     <td><code>"127.0.0.1:2181"</code></td>
   </tr>
+  <tr>
+    <td><code>node['zookeeper-bridge']['zookeeper-handler']['version']</code></td>
+    <td>chef-handler-zookeeper gem version to install.</td>
+    <td><code>nil</code> <em>(latest)</em></td>
+  </tr>
 </table>
 
 Recipes

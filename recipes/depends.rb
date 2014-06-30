@@ -21,3 +21,6 @@ node.default['build-essential']['compiletime'] = true
 include_recipe 'build-essential'
 
 chef_gem 'zk' # not required in zookeeper_handler recipe, but does not harm
+chef_gem 'chef-handler-zookeeper' do
+  version node['zookeeper-bridge']['zookeeper-handler']['version']
+end

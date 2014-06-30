@@ -30,9 +30,12 @@ argument_array = [
 
 # Install the `chef-handler-zookeeper` RubyGem during the compile phase
 if defined?(Chef::Resource::ChefGem)
-  chef_gem 'chef-handler-zookeeper'
+  chef_gem 'chef-handler-zookeeper' do
+    version node['zookeeper-bridge']['zookeeper-handler']['version']
+  end
 else
   gem_package('chef-handler-zookeeper') do
+    version node['zookeeper-bridge']['zookeeper-handler']['version']
     action :nothing
   end.run_action(:install)
 end
