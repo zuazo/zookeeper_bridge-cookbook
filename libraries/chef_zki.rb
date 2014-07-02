@@ -7,7 +7,7 @@ rescue LoadError
 end
 
 class Chef
-  class Zki
+  class ZookeeperBridge
 
     class Depends
       def self.load
@@ -43,7 +43,7 @@ class Chef
     public
 
     def initialize(server)
-      Chef::Zki::Depends.load
+      Chef::ZookeeperBridge::Depends.load
       @zk = ZK.new(server)
     end
 
