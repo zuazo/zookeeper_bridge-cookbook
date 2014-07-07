@@ -1,0 +1,18 @@
+actions :run
+
+attribute :path,   :kind_of => String, :name_attribute => true
+attribute :server, :kind_of => String, :default => nil
+attribute :wait,   :kind_of => [TrueClass, Integer], :default => true
+
+def block(&block)
+  if block_given? and block
+    @block = block
+  else
+    @block
+  end
+end
+
+def initialize(*args)
+  super
+  @action = :run
+end

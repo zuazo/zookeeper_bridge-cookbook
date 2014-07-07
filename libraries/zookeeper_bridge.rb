@@ -168,6 +168,26 @@ class Chef
       return true
     end
 
+    def shared_lock(path, wait)
+      root_node, name = path_to_name_and_root_node(path)
+
+      lock = ZK::Locker::SharedLocker.new(@zk, name, root_node)
+      lock.with_lock({ :wait => wait }) do
+        Chef::Log.debug("Zookeeper Bridge #{__method__.to_s.gsub('_', ' ')} in \"#{path}\"")
+        yield
+      end
+    end
+
+    def exclusive_lock(path, wait)
+      root_node, name = path_to_name_and_root_node(path)
+
+      lock = ZK::Locker::ExclusiveLocker.new(@zk, name, root_node)
+      lock.with_lock({ :wait => wait }) do
+        Chef::Log.debug("Zookeeper Bridge #{__method__.to_s.gsub('_', ' ')} in \"#{path}\"")
+        yield
+      end
+    end
+
     def semaphore(path, size, wait)
       root_node, name = path_to_name_and_root_node(path)
 

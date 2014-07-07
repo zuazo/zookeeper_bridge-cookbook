@@ -17,6 +17,25 @@
 # limitations under the License.
 #
 
+def recipe_fork(description, &block)
+  recipe = self
+  block_body = Proc.new do
+    fork do
+      run_context = @run_context.dup
+      @run_context.resource_collection = Chef::ResourceCollection.new
+      instance_eval(&block)
+      Chef::Runner.new(@run_context).converge
+    end
+  end
+  ruby_block description do
+    block do
+      recipe.instance_eval(&block_body)
+    end
+  end
+end
+
+forked_recipe_sleep = 3
+
 include_recipe 'zookeeper::zookeeper'
 
 zk_bin = "#{node[:zookeeper][:install_dir]}/zookeeper-#{node[:zookeeper][:version]}/bin"
@@ -33,6 +52,7 @@ include_recipe 'zookeeper_bridge'
 # start clean up
 zookeeper_bridge_cli 'create /test some_random_data'
 zookeeper_bridge_cli 'delete /test/zookeeper_bridge'
+zookeeper_bridge_cli 'delete /_zklocking'
 zookeeper_bridge_cli 'delete /_zksemaphore'
 
 # test created event
@@ -65,6 +85,10 @@ zookeeper_bridge_wait '/test/zookeeper_bridge' do
   event :none
 end
 
+#########
+# Attrs #
+#########
+
 # test attributes write
 zookeeper_bridge_attrs '/test/attributes' do
   attribute node['zookeeper']
@@ -83,70 +107,224 @@ ruby_block 'Attribute read test: ZooKeeper version' do
   end
 end
 
-zookeeper_bridge_semaphore 'sem001' do
-  size 1
+##############
+# Read Locks #
+##############
+
+zookeeper_bridge_rdlock 'r001' do
   block do
     execute 'true'
   end
 end
 
-def recipe_fork(description, &block)
-  recipe = self
-  block_body = Proc.new do
-    fork do
-      run_context = @run_context.dup
-      @run_context.resource_collection = Chef::ResourceCollection.new
-      instance_eval(&block)
-      Chef::Runner.new(@run_context).converge
-    end
-  end
-  ruby_block description do
-    block do
-      recipe.instance_eval(&block_body)
-    end
-  end
-end
-
-sem_name = '002'
-sem_size = 1
-sleep = 5
-
 t1 = nil
-ruby_block "#{sem_name} t1" do
+ruby_block 'r002 t1' do
   block do
     t1 = Time.now
   end
 end
 
-recipe_fork "#{sem_name} blocking semaphore" do
-  zookeeper_bridge_semaphore "#{sem_name}1" do
-    path sem_name
-    size sem_size
+recipe_fork 'r002 non-blocking read lock' do
+  zookeeper_bridge_rdlock 'r002 1' do
+    path 'r002'
     block do
-      sleep(sleep)
+      sleep(forked_recipe_sleep)
     end
   end
 end
 
 execute 'sleep 1'
 
-zookeeper_bridge_semaphore "#{sem_name}2" do
-  path sem_name
+zookeeper_bridge_rdlock 'r002 2' do
+  path 'r002'
+  block do
+    execute 'true'
+  end
+end
+
+ruby_block 'r002 t2' do
+  block do
+    t2 = Time.now
+    if t2 - t1 > forked_recipe_sleep - 1
+      raise "r002 read lock blocked time wrong: #{(t2 - t1).round(2)}"
+    end
+  end
+end
+
+###############
+# Write Locks #
+###############
+
+zookeeper_bridge_wrlock 'w001' do
+  block do
+    execute 'true'
+  end
+end
+
+t1 = nil
+ruby_block 'w002 t1' do
+  block do 
+    t1 = Time.now
+  end
+end 
+      
+recipe_fork 'w002 blocking write lock' do
+  zookeeper_bridge_wrlock 'w002 wr1' do
+    path 'w002'
+    block do
+      sleep(forked_recipe_sleep)
+    end
+  end
+end
+
+execute 'sleep 1'
+
+zookeeper_bridge_wrlock 'w002 wr2' do
+  path 'w002'
+  block do
+    execute 'true'
+  end
+end
+
+ruby_block 'w002 t2' do
+  block do
+    t2 = Time.now
+    if t2 - t1 < forked_recipe_sleep
+      raise "w002 write lock blocked time wrong: #{(t2 - t1).round(2)}"
+    end
+  end
+end
+
+####################
+# Read/Write Locks #
+####################
+
+# Read lock when write locked:
+# 1. write lock
+# 2. read lock
+
+t1 = nil
+ruby_block 'rw001 t1' do
+  block do
+    t1 = Time.now
+  end
+end
+
+recipe_fork 'rw001 blocking write lock' do
+  zookeeper_bridge_wrlock 'rw001 w1' do
+    path 'rw001'
+    block do
+      sleep(forked_recipe_sleep)
+    end
+  end
+end
+
+execute 'sleep 1'
+
+zookeeper_bridge_rdlock 'rw001 r1' do
+  path 'rw001'
+  block do
+    execute 'true'
+  end
+end
+
+ruby_block 'rw001 t2' do
+  block do
+    t2 = Time.now
+    if t2 - t1 < forked_recipe_sleep
+      raise "rw001 write/read lock blocked time wrong: #{(t2 - t1).round(2)}"
+    end
+  end
+end
+
+# Write lock when read locked:
+# 1. read lock
+# 2. write lock
+
+t1 = nil
+ruby_block 'rw002 t1' do
+  block do
+    t1 = Time.now
+  end
+end
+
+recipe_fork 'rw002 write blocking read lock' do
+  zookeeper_bridge_rdlock 'rw002 r1' do
+    path 'rw002'
+    block do
+      sleep(forked_recipe_sleep)
+    end
+  end
+end
+
+execute 'sleep 1'
+
+zookeeper_bridge_wrlock 'rw002 2' do
+  path 'rw002'
+  block do
+    execute 'true'
+  end
+end
+
+ruby_block 'rw002 t2' do
+  block do
+    t2 = Time.now
+    if t2 - t1 < forked_recipe_sleep
+      raise "rw002 read/write lock blocked time wrong: #{(t2 - t1).round(2)}"
+    end
+  end
+end
+
+##############
+# Semaphores #
+##############
+
+zookeeper_bridge_sem 'sem001' do
+  size 1
+  block do
+    execute 'true'
+  end
+end
+
+sem_size = 1
+
+t1 = nil
+ruby_block 'sem002 t1' do
+  block do
+    t1 = Time.now
+  end
+end
+
+recipe_fork 'sem002 blocking semaphore' do
+  zookeeper_bridge_sem 'sem002 1' do
+    path 'sem002'
+    size sem_size
+    block do
+      sleep(forked_recipe_sleep)
+    end
+  end
+end
+
+execute 'sleep 1'
+
+zookeeper_bridge_sem 'sem002 2' do
+  path 'sem002'
   size sem_size
   block do
     execute 'true'
   end
 end
 
-ruby_block "#{sem_name} t2" do
+ruby_block 'sem002 t2' do
   block do
     t2 = Time.now
-    if t2 - t1 < sleep
-      raise "#{sem_name} semaphore blocked time wrong: #{(t2 - t1).round(2)}"
+    if t2 - t1 < forked_recipe_sleep
+      raise "sem002 semaphore blocked time wrong: #{(t2 - t1).round(2)}"
     end
   end
 end
 
 # end clean up
 zookeeper_bridge_cli 'delete /test/zookeeper_bridge'
+zookeeper_bridge_cli 'delete /_zklocking'
 zookeeper_bridge_cli 'delete /_zksemaphore'
