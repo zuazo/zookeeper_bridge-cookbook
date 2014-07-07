@@ -40,6 +40,14 @@ class Chef
       end
     end
 
+    def path_to_name_and_root_node(path)
+      name = ::File.basename(path)
+      root_node = ::File.dirname(path)
+      root_node = nil if root_node == '.'
+
+      [ root_node, name ]
+    end
+
     public
 
     def initialize(server)
@@ -158,6 +166,16 @@ class Chef
         @zk.create(abs_node_path, attributes.to_json)
       end
       return true
+    end
+
+    def semaphore(path, size, wait)
+      root_node, name = path_to_name_and_root_node(path)
+
+      lock = ZK::Locker::Semaphore.new(@zk, name, size, root_node)
+      lock.with_lock({ :wait => wait }) do
+        Chef::Log.debug("Zookeeper Bridge #{__method__.to_s.gsub('_', ' ')} in \"#{path}\"")
+        yield
+      end
     end
 
     def close

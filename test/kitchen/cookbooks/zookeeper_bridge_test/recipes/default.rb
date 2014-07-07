@@ -33,6 +33,7 @@ include_recipe 'zookeeper_bridge'
 # start clean up
 zookeeper_bridge_cli 'create /test some_random_data'
 zookeeper_bridge_cli 'delete /test/zookeeper_bridge'
+zookeeper_bridge_cli 'delete /_zksemaphore'
 
 # test created event
 zookeeper_bridge_cli 'create /test/zookeeper_bridge more_random_data' do
@@ -82,5 +83,70 @@ ruby_block 'Attribute read test: ZooKeeper version' do
   end
 end
 
+zookeeper_bridge_semaphore 'sem001' do
+  size 1
+  block do
+    execute 'true'
+  end
+end
+
+def recipe_fork(description, &block)
+  recipe = self
+  block_body = Proc.new do
+    fork do
+      run_context = @run_context.dup
+      @run_context.resource_collection = Chef::ResourceCollection.new
+      instance_eval(&block)
+      Chef::Runner.new(@run_context).converge
+    end
+  end
+  ruby_block description do
+    block do
+      recipe.instance_eval(&block_body)
+    end
+  end
+end
+
+sem_name = '002'
+sem_size = 1
+sleep = 5
+
+t1 = nil
+ruby_block "#{sem_name} t1" do
+  block do
+    t1 = Time.now
+  end
+end
+
+recipe_fork "#{sem_name} blocking semaphore" do
+  zookeeper_bridge_semaphore "#{sem_name}1" do
+    path sem_name
+    size sem_size
+    block do
+      sleep(sleep)
+    end
+  end
+end
+
+execute 'sleep 1'
+
+zookeeper_bridge_semaphore "#{sem_name}2" do
+  path sem_name
+  size sem_size
+  block do
+    execute 'true'
+  end
+end
+
+ruby_block "#{sem_name} t2" do
+  block do
+    t2 = Time.now
+    if t2 - t1 < sleep
+      raise "#{sem_name} semaphore blocked time wrong: #{(t2 - t1).round(2)}"
+    end
+  end
+end
+
 # end clean up
 zookeeper_bridge_cli 'delete /test/zookeeper_bridge'
+zookeeper_bridge_cli 'delete /_zksemaphore'
