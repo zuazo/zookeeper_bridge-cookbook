@@ -1,6 +1,6 @@
 
 action :wait do
-  server = new_resource.server || node['zookeeper-bridge']['zookeeper']['server']
+  server = new_resource.server || node['zookeeper_bridge']['zookeeper']['server']
   zkb = Chef::ZookeeperBridge.new(server)
   case new_resource.status.to_sym
   when :created

@@ -1,5 +1,5 @@
 #
-# Cookbook Name:: zookeeper-bridge
+# Cookbook Name:: zookeeper_bridge
 # Recipe:: zookeeper_handler
 #
 # Copyright 2013, Onddo Labs, Sl.
@@ -20,22 +20,22 @@
 # Notice: include this recipe near the beginning of the node's run list so
 # that the start handler can take effect early on.
 
-include_recipe 'zookeeper-bridge::depends'
+include_recipe 'zookeeper_bridge::depends'
 
 # Handler configuration options
 argument_array = [
-  :server => node['zookeeper-bridge']['zookeeper']['server'].to_s,
+  :server => node['zookeeper_bridge']['zookeeper']['server'].to_s,
   :znode => "/chef/#{`hostname`.chomp}/status",
 ]
 
 # Install the `chef-handler-zookeeper` RubyGem during the compile phase
 if defined?(Chef::Resource::ChefGem)
   chef_gem 'chef-handler-zookeeper' do
-    version node['zookeeper-bridge']['zookeeper-handler']['version']
+    version node['zookeeper_bridge']['zookeeper-handler']['version']
   end
 else
   gem_package('chef-handler-zookeeper') do
-    version node['zookeeper-bridge']['zookeeper-handler']['version']
+    version node['zookeeper_bridge']['zookeeper-handler']['version']
     action :nothing
   end.run_action(:install)
 end

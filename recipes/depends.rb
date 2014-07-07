@@ -1,5 +1,5 @@
 #
-# Cookbook Name:: zookeeper-bridge
+# Cookbook Name:: zookeeper_bridge
 # Recipe:: depends
 #
 # Copyright 2013, Onddo Labs, Sl.
@@ -22,5 +22,5 @@ include_recipe 'build-essential'
 
 chef_gem 'zk' # not required in zookeeper_handler recipe, but does not harm
 chef_gem 'chef-handler-zookeeper' do
-  version node['zookeeper-bridge']['zookeeper-handler']['version']
+  version node['zookeeper_bridge']['zookeeper-handler']['version']
 end

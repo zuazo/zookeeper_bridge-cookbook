@@ -1,11 +1,11 @@
-zookeeper-bridge_test CHANGELOG
+zookeeper_bridge_test CHANGELOG
 =======================
 
-This file is used to list changes made in each version of the zookeeper-bridge_test cookbook.
+This file is used to list changes made in each version of the zookeeper_bridge_test cookbook.
 
 0.1.0
 -----
-- [your_name] - Initial release of zookeeper-bridge_test
+- [your_name] - Initial release of zookeeper_bridge_test
 
 - - -
 Check the [Markdown Syntax Guide](http://daringfireball.net/projects/markdown/syntax) for help with Markdown.

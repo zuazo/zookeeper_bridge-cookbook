@@ -1,5 +1,5 @@
 #
-# Cookbook Name:: zookeeper-bridge
+# Cookbook Name:: zookeeper_bridge
 # Recipe:: default
 #
 # Copyright 2013, Onddo Labs, Sl.
@@ -17,4 +17,4 @@
 # limitations under the License.
 #
 
-include_recipe 'zookeeper-bridge::depends'
+include_recipe 'zookeeper_bridge::depends'

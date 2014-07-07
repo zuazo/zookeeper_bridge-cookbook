@@ -1,1 +1,1 @@
-default['zookeeper-bridge']['zookeeper-handler']['version'] = nil
+default['zookeeper_bridge']['zookeeper-handler']['version'] = nil

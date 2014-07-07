@@ -1,9 +1,9 @@
 Description
 ===========
 
-Chef `zookeeper-bridge` cookbook, used to help integrating the Chef Run with ZooKeeper.
+Chef `zookeeper_bridge` cookbook, used to help integrating the Chef Run with ZooKeeper.
 
-This cookbook is mainly used by calling the Resources it provides. See their documentation below. The `zookeeper-bridge::default` recipe needs to be included before its use.
+This cookbook is mainly used by calling the Resources it provides. See their documentation below. The `zookeeper_bridge::default` recipe needs to be included before its use.
 
 Requirements
 ============
@@ -33,12 +33,12 @@ Attributes
     <td>Default</td>
   </tr>
   <tr>
-    <td><code>node['zookeeper-bridge']['zookeeper']['server']</code></td>
+    <td><code>node['zookeeper_bridge']['zookeeper']['server']</code></td>
     <td>Zookeeper server address.</td>
     <td><code>"127.0.0.1:2181"</code></td>
   </tr>
   <tr>
-    <td><code>node['zookeeper-bridge']['zookeeper-handler']['version']</code></td>
+    <td><code>node['zookeeper_bridge']['zookeeper-handler']['version']</code></td>
     <td>chef-handler-zookeeper gem version to install.</td>
     <td><code>nil</code> <em>(latest)</em></td>
   </tr>
@@ -47,15 +47,15 @@ Attributes
 Recipes
 =======
 
-## zookeeper-bridge::default
+## zookeeper_bridge::default
 
 Minimum recipe required to use the providers.
 
-## zookeeper-bridge::depends
+## zookeeper_bridge::depends
 
 Install some dependencies required by this cookbook.
 
-## zookeeper-bridge::zookeeper_handler
+## zookeeper_bridge::zookeeper_handler
 
 Installs and configures `chef-handler-zookeeper` gem.
 
@@ -87,7 +87,7 @@ Used to read or write Chef Node attributes from or to ZooKeeper znode paths. The
   <tr>
     <td>server</td>
     <td>ZooKeeper server address.</td>
-    <td><code>node['zookeeper-bridge']['zookeeper']['server']</code></td>
+    <td><code>node['zookeeper_bridge']['zookeeper']['server']</code></td>
   </tr>
   <tr>
     <td>attribute</td>
@@ -170,7 +170,7 @@ Waits until a given ZooKeeper znode path exists, not exists or changes its state
   <tr>
     <td>server</td>
     <td>ZooKeeper server address.</td>
-    <td><code>node['zookeeper-bridge']['zookeeper']['server']</code></td>
+    <td><code>node['zookeeper_bridge']['zookeeper']['server']</code></td>
   </tr>
   <tr>
     <td>status</td>
@@ -235,7 +235,7 @@ Runs a ZooKeeper command using the `zkCli.sh` script. Remember that this script 
 zookeeper_bridge_cli 'create /test some_random_data'
 ```
 
-This resource is currently used in the integration tests. See the `zookeeper-bridge_test` cookbook recipes for more usage examples.
+This resource is currently used in the integration tests. See the `zookeeper_bridge_test` cookbook recipes for more usage examples.
 
 Testing
 =======

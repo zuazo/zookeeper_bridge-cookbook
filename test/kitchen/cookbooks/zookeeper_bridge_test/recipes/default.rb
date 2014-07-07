@@ -1,5 +1,5 @@
 #
-# Cookbook Name:: zookeeper-bridge_test
+# Cookbook Name:: zookeeper_bridge_test
 # Recipe:: default
 #
 # Copyright 2013, Onddo Labs, Sl.
@@ -28,7 +28,7 @@ service 'zookeeper' do
   action :start
 end
 
-include_recipe 'zookeeper-bridge'
+include_recipe 'zookeeper_bridge'
 
 # start clean up
 zookeeper_bridge_cli 'create /test some_random_data'
@@ -84,4 +84,3 @@ end
 
 # end clean up
 zookeeper_bridge_cli 'delete /test/zookeeper_bridge'
-
