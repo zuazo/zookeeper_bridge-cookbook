@@ -3,13 +3,20 @@ def whyrun_supported?
 end
 
 action :run do
-  command = new_resource.command.gsub(/\\/, '\\\\').gsub(/"/, '\\"') # TODO: a bit tricky
-  cli = "#{node[:zookeeper][:install_dir]}/zookeeper-#{node[:zookeeper][:version]}/bin/zkCli.sh"
-  sleep_prefix = if new_resource.sleep and new_resource.sleep > 0
-    "sleep '#{new_resource.sleep.to_s}' && "
-  else
-    ''
-  end
+  # TODO: a bit tricky
+  command = new_resource.command.gsub(/\\/, '\\\\').gsub(/"/, '\\"')
+  cli = ::File.join(
+    node[:zookeeper][:install_dir],
+    "zookeeper-#{node[:zookeeper][:version]}",
+    'bin',
+    'zkCli.sh'
+  )
+  sleep_prefix =
+    if new_resource.sleep && new_resource.sleep > 0
+      "sleep '#{new_resource.sleep}' && "
+    else
+      ''
+    end
   background_sufix = new_resource.background ? ' &' : ''
 
   converge_by("Run zookeeper client command: #{command}") do
@@ -17,4 +24,3 @@ action :run do
     # TODO: raise an exception if the zk command throws an error
   end
 end
-

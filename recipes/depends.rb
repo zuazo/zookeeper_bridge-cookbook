@@ -22,5 +22,5 @@ include_recipe 'build-essential'
 
 chef_gem 'zk' # not required in zookeeper_handler recipe, but does not harm
 chef_gem 'chef-handler-zookeeper' do
-  version node['zookeeper_bridge']['zookeeper-handler']['version']
+  version node['zookeeper_bridge']['chef_handler']['version']
 end

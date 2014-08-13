@@ -19,9 +19,10 @@ Requirements
 * build-essential
 * chef_handler
 
-## Ruby gems
+## Applications:
 
-* zk
+* Ruby 1.9.3 or higher.
+* zk ruby gem.
 
 Attributes
 ==========
@@ -33,14 +34,19 @@ Attributes
     <td>Default</td>
   </tr>
   <tr>
-    <td><code>node['zookeeper_bridge']['zookeeper']['server']</code></td>
+    <td><code>node['zookeeper_bridge']['server']</code></td>
     <td>Zookeeper server address.</td>
     <td><code>"127.0.0.1:2181"</code></td>
   </tr>
   <tr>
-    <td><code>node['zookeeper_bridge']['zookeeper-handler']['version']</code></td>
+    <td><code>node['zookeeper_bridge']['chef_handler']['version']</code></td>
     <td>chef-handler-zookeeper gem version to install.</td>
     <td><code>nil</code> <em>(latest)</em></td>
+  </tr>
+  <tr>
+    <td><code>node['zookeeper_bridge']['chef_handler']['znode']</code></td>
+    <td>chef-handler-zookeeper znode path.</td>
+    <td><code>"/chef/#{node['fqdn']}/status"</code></td>
   </tr>
 </table>
 
@@ -55,7 +61,7 @@ Minimum recipe required to use the providers.
 
 Install some dependencies required by this cookbook.
 
-## zookeeper_bridge::zookeeper_handler
+## zookeeper_bridge::chef_handler
 
 Installs and configures `chef-handler-zookeeper` gem.
 
@@ -87,7 +93,7 @@ Used to read or write Chef Node attributes from or to ZooKeeper znode paths. The
   <tr>
     <td>server</td>
     <td>ZooKeeper server address.</td>
-    <td><code>node['zookeeper_bridge']['zookeeper']['server']</code></td>
+    <td><code>node['zookeeper_bridge']['server']</code></td>
   </tr>
   <tr>
     <td>attribute</td>
@@ -170,7 +176,7 @@ Waits until a given ZooKeeper znode path exists, not exists or changes its state
   <tr>
     <td>server</td>
     <td>ZooKeeper server address.</td>
-    <td><code>node['zookeeper_bridge']['zookeeper']['server']</code></td>
+    <td><code>node['zookeeper_bridge']['server']</code></td>
   </tr>
   <tr>
     <td>status</td>

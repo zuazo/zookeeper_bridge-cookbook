@@ -24,43 +24,46 @@ include_recipe 'zookeeper_bridge::depends'
 
 # Handler configuration options
 argument_array = [
-  :server => node['zookeeper_bridge']['zookeeper']['server'].to_s,
-  :znode => "/chef/#{`hostname`.chomp}/status",
+  server: node['zookeeper_bridge']['server'].to_s,
+  znode: node['zookeeper_bridge']['chef_handler']['znode']
 ]
 
 # Install the `chef-handler-zookeeper` RubyGem during the compile phase
 if defined?(Chef::Resource::ChefGem)
   chef_gem 'chef-handler-zookeeper' do
-    version node['zookeeper_bridge']['zookeeper-handler']['version']
+    version node['zookeeper_bridge']['chef_handler']['version']
   end
 else
   gem_package('chef-handler-zookeeper') do
-    version node['zookeeper_bridge']['zookeeper-handler']['version']
+    version node['zookeeper_bridge']['chef_handler']['version']
     action :nothing
   end.run_action(:install)
 end
 
-zookeeper_handler_path = Gem::Specification.respond_to?('find_by_name') ?
-  Gem::Specification.find_by_name('chef-handler-zookeeper').lib_dirs_glob :
-  Gem.all_load_paths.grep(/chef-handler-zookeeper/).first
+zookeeper_handler_path =
+  if Gem::Specification.respond_to?('find_by_name')
+    Gem::Specification.find_by_name('chef-handler-zookeeper').lib_dirs_glob
+  else
+    Gem.all_load_paths.grep(/chef-handler-zookeeper/).first
+  end
 
 # Then activate the handler with the `chef_handler` LWRP
-chef_handler "Chef::Handler::ZookeeperHandler" do
+chef_handler 'Chef::Handler::ZookeeperHandler' do
   source "#{zookeeper_handler_path}/chef/handler/zookeeper"
   arguments argument_array
-  supports :start => true, :report => true, :exception => true
+  supports start: true, report: true, exception: true
   action :nothing
 end.run_action(:enable)
 
-# based on code from chef-sensu-handler cookbook
+# Based on code from chef-sensu-handler cookbook
 ruby_block 'trigger_start_handlers' do
   block do
     require 'chef/run_status'
     require 'chef/handler'
 
-    # a bit tricky, required by the default start.json.erb template to have access to node
+    # A bit tricky, required by the default start.json.erb template to have
+    # access to node
     Chef::Handler.run_start_handlers(self)
   end
   action :nothing
 end.run_action(:create)
-

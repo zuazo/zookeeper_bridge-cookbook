@@ -1,12 +1,12 @@
 actions :run
 
-attribute :path,   :kind_of => String, :name_attribute => true
-attribute :server, :kind_of => String, :default => nil
-attribute :size,   :kind_of => Integer, :required => true
-attribute :wait,   :kind_of => [TrueClass, Integer], :default => true
+attribute :path, kind_of: String, name_attribute: true
+attribute :server, kind_of: String, default: nil
+attribute :size, kind_of: Integer, required: true
+attribute :wait, kind_of: [TrueClass, Integer], default: true
 
 def block(&block)
-  if block_given? and block
+  if block_given? && block
     @block = block
   else
     @block

@@ -1,4 +1,3 @@
-
 require 'json'
 begin
   require 'zk'
@@ -7,12 +6,13 @@ rescue LoadError
 end
 
 class Chef
+  # Chef helpers to interact with ZooKeeper
   class ZookeeperBridge
-
+    # Load the required dependencies
     class Depends
       def self.load
         unless defined?(ZK)
-          Chef::Log.info("Trying to load 'zk' at runtime.")
+          Chef::Log.info('Trying to load "zk" gem at runtime.')
           Gem.clear_paths
           require 'zk'
         end
@@ -21,20 +21,14 @@ class Chef
 
     private
 
-    def force_encoding(o, encoding='UTF-8')
-      if o.kind_of?(Hash)
-        Hash[o.map do |k, v|
-          [
-            force_encoding(k, encoding),
-            force_encoding(v, encoding),
-          ]
-        end]
-      elsif o.kind_of?(Array)
-        o.map do |i|
-          force_encoding(i, encoding)
+    def force_encoding(o, encoding = 'UTF-8')
+      case o
+      when Hash
+        o.each_with_object({}) do |(k, v), r|
+          r[force_encoding(k, encoding)] = force_encoding(v, encoding)
         end
-      elsif o.kind_of?(String)
-        o.dup.force_encoding(encoding)
+      when Array then o.map { |i| force_encoding(i, encoding) }
+      when String then o.dup.force_encoding(encoding)
       else
         o
       end
@@ -45,7 +39,7 @@ class Chef
       root_node = ::File.dirname(path)
       root_node = nil if root_node == '.'
 
-      [ root_node, name ]
+      [root_node, name]
     end
 
     public
@@ -58,18 +52,29 @@ class Chef
     # Based on ZK gem examples:
     #   https://github.com/zk-ruby/zk/blob/master/docs/examples
 
+    private
+
+    def event_types_hash(event_types)
+      event_types_ary = [event_types].flatten
+      event_types_ary.each_with_object({}) do |v, r|
+        r["ZOO_#{v.to_s.upcase}_EVENT"] = v.to_sym
+      end
+    end
+
+    public
+
     def block_until_znode_event(abs_node_path, event_types)
       queue = Queue.new
-      event_types_hs = Hash[ [event_types].flatten.map{ |v| ["ZOO_#{v.to_s.upcase}_EVENT", v.to_sym] } ]
-
+      event_types_hs = event_types_hash(event_types)
       ev_sub = @zk.register(abs_node_path) do |event|
-        queue.enq(event_types_hs[event.event_name]) if event_types_hs.has_key?(event.event_name)
+        if event_types_hs.key?(event.event_name)
+          queue.enq(event_types_hs[event.event_name])
+        end
       end
-      @zk.stat(abs_node_path, :watch => true)
-
+      @zk.stat(abs_node_path, watch: true)
       queue.pop # block waiting for node change
     ensure
-      ev_sub.unsubscribe
+      ev_sub.unsubscribe unless ev_sub.nil?
     end
 
     def block_until_znode_created(abs_node_path)
@@ -79,20 +84,19 @@ class Chef
         if event.node_created?
           queue.enq(:created)
         else
-          if @zk.exists?(abs_node_path, :watch => true)
-            # ooh! surprise! There it is!
-            queue.enq(:created)
+          if @zk.exists?(abs_node_path, watch: true)
+            queue.enq(:created) # ooh! surprise! There it is!
           end
         end
       end
 
       # set up the callback, but bail if we don't need to wait
-      return true if @zk.exists?(abs_node_path, :watch => true)
+      return true if @zk.exists?(abs_node_path, watch:  true)
 
       queue.pop # block waiting for node creation
       true
     ensure
-      ev_sub.unsubscribe
+      ev_sub.unsubscribe unless ev_sub.nil?
     end
 
     def block_until_znode_changed(abs_node_path)
@@ -107,7 +111,7 @@ class Chef
         if event.node_deleted?
           queue.enq(:deleted)
         else
-          unless @zk.exists?(abs_node_path, :watch => true)
+          unless @zk.exists?(abs_node_path, watch:  true)
             # ooh! surprise! it's gone!
             queue.enq(:deleted)
           end
@@ -115,65 +119,68 @@ class Chef
       end
 
       # set up the callback, but bail if we don't need to wait
-      return true unless @zk.exists?(abs_node_path, :watch => true)
+      return true unless @zk.exists?(abs_node_path, watch:  true)
 
       queue.pop # block waiting for node deletion
       true
     ensure
-      ev_sub.unsubscribe
+      ev_sub.unsubscribe unless ev_sub.nil?
     end
 
-    def attributes_read(abs_node_path, attributes, key=nil, force_encoding=nil)
-      attrs, stat = @zk.get(abs_node_path)
-      unless force_encoding.nil?
-        attrs = force_encoding(attrs, force_encoding)
-      end
-      if attrs.kind_of?(String)
+    def attributes_read(abs_node_path, attributes, key = nil, encoding = nil)
+      attrs, _stat = @zk.get(abs_node_path)
+      attrs = force_encoding(attrs, encoding) unless encoding.nil?
+      if attrs.is_a?(String)
         attrs = JSON.parse(attrs)
         unless key.nil?
-          return false unless attrs.has_key?(key)
+          return false unless attrs.key?(key)
           attrs = attrs[key] unless key.nil?
         end
         attributes.merge!(attrs)
         return true
       end
-      return false
+      false
     end
 
-    def attributes_write(abs_node_path, attributes, key=nil, force_encoding=nil)
+    def attributes_write(abs_node_path, attributes, key = nil, encoding = nil)
       attributes = attributes.to_hash
-      unless force_encoding.nil?
-        attributes = force_encoding(attributes, force_encoding)
-      end
+      attributes = force_encoding(attributes, encoding) unless encoding.nil?
       if @zk.exists?(abs_node_path)
         # TODO: test this hash merge properly
         read_data, stat = @zk.get(abs_node_path)
         if read_data.length > 0
           read_data = JSON.parse(read_data)
-          unless key.nil?
-            return false if read_data[key] === attributes
-            attributes = read_data.has_key?(key) ? read_data[key].merge(attributes) : attributes
+          if !key.nil?
+            return false if read_data[key] == attributes
+            attributes =
+              if read_data.key?(key)
+                read_data[key].merge(attributes)
+              else
+                attributes
+              end
           else
-            return false if read_data === attributes
+            return false if read_data == attributes
             attributes = read_data.merge(attributes)
           end
         else
           attributes = { key => attributes } unless key.nil?
         end
-        @zk.set(abs_node_path, attributes.to_json, :version => stat.version)
+        @zk.set(abs_node_path, attributes.to_json, version: stat.version)
       else
         attributes = { key => attributes } unless key.nil?
         @zk.create(abs_node_path, attributes.to_json)
       end
-      return true
+      true
     end
 
     def shared_lock(path, wait)
       root_node, name = path_to_name_and_root_node(path)
 
       lock = ZK::Locker::SharedLocker.new(@zk, name, root_node)
-      lock.with_lock({ :wait => wait }) do
-        Chef::Log.debug("Zookeeper Bridge #{__method__.to_s.gsub('_', ' ')} in \"#{path}\"")
+      lock.with_lock(wait: wait) do
+        Chef::Log.debug(
+          "Zookeeper Bridge #{__method__.to_s.gsub('_', ' ')} in \"#{path}\""
+        )
         yield
       end
     end
@@ -182,8 +189,10 @@ class Chef
       root_node, name = path_to_name_and_root_node(path)
 
       lock = ZK::Locker::ExclusiveLocker.new(@zk, name, root_node)
-      lock.with_lock({ :wait => wait }) do
-        Chef::Log.debug("Zookeeper Bridge #{__method__.to_s.gsub('_', ' ')} in \"#{path}\"")
+      lock.with_lock(wait: wait) do
+        Chef::Log.debug(
+          "Zookeeper Bridge #{__method__.to_s.gsub('_', ' ')} in \"#{path}\""
+        )
         yield
       end
     end
@@ -192,8 +201,10 @@ class Chef
       root_node, name = path_to_name_and_root_node(path)
 
       lock = ZK::Locker::Semaphore.new(@zk, name, size, root_node)
-      lock.with_lock({ :wait => wait }) do
-        Chef::Log.debug("Zookeeper Bridge #{__method__.to_s.gsub('_', ' ')} in \"#{path}\"")
+      lock.with_lock(wait: wait) do
+        Chef::Log.debug(
+          "Zookeeper Bridge #{__method__.to_s.gsub('_', ' ')} in \"#{path}\""
+        )
         yield
       end
     end
@@ -201,7 +212,5 @@ class Chef
     def close
       @zk.close
     end
-
   end
 end
-

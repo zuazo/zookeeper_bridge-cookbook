@@ -17,17 +17,18 @@
 # limitations under the License.
 #
 
+def recipe_block_run(&block)
+  @run_context.resource_collection = Chef::ResourceCollection.new
+  instance_eval(&block)
+  Chef::Runner.new(@run_context).converge
+end
+
 def recipe_fork(description, &block)
   recipe = self
-  block_body = Proc.new do
-    fork do
-      run_context = @run_context.dup
-      @run_context.resource_collection = Chef::ResourceCollection.new
-      instance_eval(&block)
-      Chef::Runner.new(@run_context).converge
-    end
+  block_body = proc do
+    fork { recipe_block_run(&block) }
   end
-  ruby_block description do
+  ruby_block "recipe_fork[#{description}]" do
     block do
       recipe.instance_eval(&block_body)
     end
@@ -38,12 +39,17 @@ forked_recipe_sleep = 3
 
 include_recipe 'zookeeper::zookeeper'
 
-zk_bin = "#{node[:zookeeper][:install_dir]}/zookeeper-#{node[:zookeeper][:version]}/bin"
+zk_bin = ::File.join(
+  "#{node['zookeeper']['install_dir']}",
+  "zookeeper-#{node['zookeeper']['version']}",
+  'bin'
+)
+zk_server_bin = ::File.join(zk_bin, 'zkServer.sh')
 service 'zookeeper' do
-  restart_command "#{zk_bin}/zkServer.sh restart zoo_sample.cfg"
-  start_command "#{zk_bin}/zkServer.sh start zoo_sample.cfg"
-  status_command "#{zk_bin}/zkServer.sh status zoo_sample.cfg"
-  stop_command "#{zk_bin}/zkServer.sh stop zoo_sample.cfg"
+  restart_command "#{zk_server_bin} restart zoo_sample.cfg"
+  start_command "#{zk_server_bin} start zoo_sample.cfg"
+  status_command "#{zk_server_bin} status zoo_sample.cfg"
+  stop_command "#{zk_server_bin} stop zoo_sample.cfg"
   action :start
 end
 
@@ -103,7 +109,7 @@ end
 
 ruby_block 'Attribute read test: ZooKeeper version' do
   block do
-    raise unless node['zookeeper_read']['version'].kind_of?(String)
+    fail unless node['zookeeper_read']['version'].is_a?(String)
   end
 end
 
@@ -145,8 +151,8 @@ end
 ruby_block 'r002 t2' do
   block do
     t2 = Time.now
-    if t2 - t1 > forked_recipe_sleep - 1
-      raise "r002 read lock blocked time wrong: #{(t2 - t1).round(2)}"
+    if t2 - t1 > forked_recipe_sleep
+      fail "r002 read lock blocked time wrong: #{(t2 - t1).round(2)}"
     end
   end
 end
@@ -163,11 +169,11 @@ end
 
 t1 = nil
 ruby_block 'w002 t1' do
-  block do 
+  block do
     t1 = Time.now
   end
-end 
-      
+end
+
 recipe_fork 'w002 blocking write lock' do
   zookeeper_bridge_wrlock 'w002 wr1' do
     path 'w002'
@@ -190,7 +196,7 @@ ruby_block 'w002 t2' do
   block do
     t2 = Time.now
     if t2 - t1 < forked_recipe_sleep
-      raise "w002 write lock blocked time wrong: #{(t2 - t1).round(2)}"
+      fail "w002 write lock blocked time wrong: #{(t2 - t1).round(2)}"
     end
   end
 end
@@ -232,7 +238,7 @@ ruby_block 'rw001 t2' do
   block do
     t2 = Time.now
     if t2 - t1 < forked_recipe_sleep
-      raise "rw001 write/read lock blocked time wrong: #{(t2 - t1).round(2)}"
+      fail "rw001 write/read lock blocked time wrong: #{(t2 - t1).round(2)}"
     end
   end
 end
@@ -270,7 +276,7 @@ ruby_block 'rw002 t2' do
   block do
     t2 = Time.now
     if t2 - t1 < forked_recipe_sleep
-      raise "rw002 read/write lock blocked time wrong: #{(t2 - t1).round(2)}"
+      fail "rw002 read/write lock blocked time wrong: #{(t2 - t1).round(2)}"
     end
   end
 end
@@ -319,7 +325,7 @@ ruby_block 'sem002 t2' do
   block do
     t2 = Time.now
     if t2 - t1 < forked_recipe_sleep
-      raise "sem002 semaphore blocked time wrong: #{(t2 - t1).round(2)}"
+      fail "sem002 semaphore blocked time wrong: #{(t2 - t1).round(2)}"
     end
   end
 end
