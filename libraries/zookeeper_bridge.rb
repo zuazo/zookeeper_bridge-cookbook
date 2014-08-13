@@ -42,6 +42,13 @@ class Chef
       [root_node, name]
     end
 
+    def event_types_hash(event_types)
+      event_types_ary = [event_types].flatten
+      event_types_ary.each_with_object({}) do |v, r|
+        r["ZOO_#{v.to_s.upcase}_EVENT"] = v.to_sym
+      end
+    end
+
     public
 
     def initialize(server)
@@ -51,17 +58,6 @@ class Chef
 
     # Based on ZK gem examples:
     #   https://github.com/zk-ruby/zk/blob/master/docs/examples
-
-    private
-
-    def event_types_hash(event_types)
-      event_types_ary = [event_types].flatten
-      event_types_ary.each_with_object({}) do |v, r|
-        r["ZOO_#{v.to_s.upcase}_EVENT"] = v.to_sym
-      end
-    end
-
-    public
 
     def block_until_znode_event(abs_node_path, event_types)
       queue = Queue.new
