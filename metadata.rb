@@ -9,19 +9,22 @@ description 'Chef zookeeper_bridge cookbook, used to help integrating the '\
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
 version '0.1.0'
 
-supports 'debian'
-supports 'ubuntu'
+supports 'amazon'
 supports 'centos'
+supports 'debian'
+supports 'fedora'
+supports 'redhat'
+supports 'ubuntu'
 
 depends 'build-essential', '~> 2.0'
 depends 'chef_handler'
 
 recipe 'zookeeper_bridge::default',
        'Minimum recipe required to use the providers.'
-recipe 'zookeeper_bridge::depends',
-       'Install some dependencies required by this cookbooks.'
 recipe 'zookeeper_bridge::chef_handler',
        'Installs and configures chef-handler-zookeeper.'
+recipe 'zookeeper_bridge::depends',
+       'Install some dependencies required by this cookbooks.'
 
 attribute 'zookeeper_bridge/server',
           display_name: 'zookeeper server',
@@ -46,4 +49,7 @@ attribute 'zookeeper_bridge/chef_handler/znode',
 
 provides 'zookeeper_bridge_attrs'
 provides 'zookeeper_bridge_cli'
+provides 'zookeeper_bridge_rdlock'
+provides 'zookeeper_bridge_sem'
 provides 'zookeeper_bridge_wait'
+provides 'zookeeper_bridge_wrlock'

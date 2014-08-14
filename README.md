@@ -1,37 +1,60 @@
 Description
 ===========
 
+[![Cookbook Version](https://img.shields.io/cookbook/v/zookeeper_bridge.svg?style=flat)](https://supermarket.getchef.com/cookbooks/zookeeper_bridge)
+[![Dependency Status](http://img.shields.io/gemnasium/onddo/zookeeper_bridge-cookbook.svg?style=flat)](https://gemnasium.com/onddo/zookeeper_bridge-cookbook)
+[![Code Climate](http://img.shields.io/codeclimate/github/onddo/zookeeper_bridge-cookbook.svg?style=flat)](https://codeclimate.com/github/onddo/zookeeper_bridge-cookbook)
+[![Build Status](http://img.shields.io/travis/onddo/zookeeper_bridge-cookbook.svg?style=flat)](https://travis-ci.org/onddo/zookeeper_bridge-cookbook)
+
 Chef `zookeeper_bridge` cookbook, used to help integrating the Chef Run with ZooKeeper.
+
+It can help in the following:
+
+* Installing and running [Chef ZooKeeper Handler](http://onddo.github.io/chef-handler-zookeeper/).
+* Reading or writing Chef Node attributes to and from ZooKeeper.
+* Running ZooKeeper Client commands.
+* Interacting with ZooKeeper read/write locks during the *Chef Run*.
+* Interacting with ZooKeeper semaphores during the *Chef Run*.
+* Wait until a ZooKeeper znode has the desired state or a certain event happens.
+
+Some of the resources included in this cookbook have not been widely tested, so you should consider this cookbook as something **experimental**.
 
 This cookbook is mainly used by calling the Resources it provides. See their documentation below. The `zookeeper_bridge::default` recipe needs to be included before its use.
 
 Requirements
 ============
 
-## Platform:
+## Platform Requirements
 
+This cookbook has been tested on the following platforms:
+
+* Amazon
+* CentOS
 * Debian
+* Fedora
+* RedHat
 * Ubuntu
-* Centos
 
-## Cookbooks:
+Please, [let us know](https://github.com/onddo/zookeeper_bridge-cookbook/issues/new?title=I%20have%20used%20it%20successfully%20on%20...) if you use it successfully on any other platform.
 
-* build-essential
-* chef_handler
+## Cookbook Requirements
 
-## Applications:
+* [build-essential](https://supermarket.getchef.com/cookbooks/build-essential)
+* [chef_handler](https://supermarket.getchef.com/cookbooks/chef_handler)
+
+## Application Requirements
 
 * Ruby 1.9.3 or higher.
-* zk ruby gem.
+* `zk` ruby gem.
 
 Attributes
 ==========
 
 <table>
   <tr>
-    <td>Attribute</td>
-    <td>Description</td>
-    <td>Default</td>
+    <th>Attribute</th>
+    <th>Description</th>
+    <th>Default</th>
   </tr>
   <tr>
     <td><code>node['zookeeper_bridge']['server']</code></td>
@@ -57,13 +80,13 @@ Recipes
 
 Minimum recipe required to use the providers.
 
-## zookeeper_bridge::depends
-
-Install some dependencies required by this cookbook.
-
 ## zookeeper_bridge::chef_handler
 
 Installs and configures `chef-handler-zookeeper` gem.
+
+## zookeeper_bridge::depends
+
+Install some dependencies required by this cookbook.
 
 Resources
 =========
@@ -112,11 +135,11 @@ Used to read or write Chef Node attributes from or to ZooKeeper znode paths. The
   </tr>
 </table>
 
-### zookeeper_bridge_attrs example
+### zookeeper_bridge_attrs examples
+
+Reading and writing all node attributes from and to ZooKeeper:
 
 ```ruby
-# Reading/Writing all node attributes
-
 zookeeper_bridge_attrs "/chef/#{node['fqdn']}/read_attributes" do
   attribute node.normal
   action :nothing
@@ -130,19 +153,20 @@ zookeeper_bridge_attrs "/chef/#{node['fqdn']}/write_attributes" do
 end
 ```
 
-**Note:** You need to understand how [compile and converge phases work on Chef Run](http://docs.opscode.com/essentials_nodes_chef_run.html) to know when to use `run_action()`.
+**Note:** You need to understand how [compile and converge phases work on Chef Run](http://docs.opscode.com/essentials_nodes_chef_run.html) to know when to use `#run_action`.
+
+Reading and writing Apache attributes:
 
 ```ruby
-# Reading/Writing Apache attributes
-
-zookeeper_bridge_attrs "/chef/#{node['fqdn']}/read_attributes" do
-  attribute node.normal['apache']
+# We use overwrite in this case to overwrite default and normal values, why not?
+zookeeper_bridge_attrs "/chef/#{node['fqdn']}/apache_attributes" do
+  attribute node.override['apache']
   action :nothing
 end.run_action(:read)
 
 # [...]
 
-zookeeper_bridge_attrs "/chef/#{node['fqdn']}/write_attributes" do
+zookeeper_bridge_attrs "/chef/#{node['fqdn']}/apache_attributes" do
   attribute node['apache']
   action :write
 end
@@ -186,15 +210,49 @@ Waits until a given ZooKeeper znode path exists, not exists or changes its state
   </tr>
 </table>
 
-### zookeeper_bridge_wait example
+### zookeeper_bridge_wait examples
+
+Wait until host znode is created (at compile time, to avoid compilling the next resources):
 
 ```ruby
-# wait until host znode is created
 zookeeper_bridge_wait "/chef/#{node['fqdn']}" do
   status :created
   event :none
   action :nothing
 end.run_action(:run)
+```
+
+Wait until the attributes exists before reading them:
+
+```ruby
+zookeeper_bridge_wait "/chef/#{node['fqdn']}/attributes" do
+  status :created
+  event :none
+  action :nothing
+end.run_action(:run)
+
+zookeeper_bridge_attrs "/chef/#{node['fqdn']}/attributes" do
+  attribute node.normal
+  action :nothing
+end.run_action(:read)
+```
+
+Continue the *Chef Run* only when the *stop znode* does not exist:
+
+```ruby
+zookeeper_bridge_wait "/chef/#{node['fqdn']}/chef_stop" do
+  status :deleted
+  event :none
+end
+```
+
+Continue the *Chef Run* only when the *continue znode* is updated:
+
+```ruby
+zookeeper_bridge_wait "/chef/#{node['fqdn']}/chef_continue" do
+  status :any
+  event :changed
+end
 ```
 
 ## zookeeper_bridge_cli[path]
@@ -235,7 +293,7 @@ Runs a ZooKeeper command using the `zkCli.sh` script. Remember that this script 
   </tr>
 </table>
 
-### zookeeper_bridge_cli example
+### zookeeper_bridge_cli examples
 
 ```ruby
 zookeeper_bridge_cli 'create /test some_random_data'
@@ -246,106 +304,33 @@ This resource is currently used in the integration tests. See the `zookeeper_bri
 Testing
 =======
 
-## Requirements
-
-* `vagrant`
-* `berkshelf`
-* `test-kitchen` >= `1.0.0.beta.1`
-* `kitchen-vagrant`
-
-## Running the tests
-
-```bash
-$ kitchen test
-$ kitchen verify
-[...]
-```
+See [TESTING.md](https://github.com/onddo/zookeeper_bridge-cookbook/blob/master/TESTING.md).
 
 Contributing
 ============
 
-1. Fork the repository on Github
-2. Create a named feature branch (like `add_component_x`)
-3. Write you change
-4. Write tests for your change (if applicable)
-5. Run the tests, ensuring they all pass
-6. Submit a Pull Request using Github
+Please do not hesitate to [open an issue](https://github.com/onddo/zookeeper_bridge-cookbook/issues/new) with any questions or problems.
 
-## ChefSpec Matchers
-
-### read_zookeeper_bridge_attrs(path)
-
-Assert that the *Chef Run* reads `zookeeper_bridge_attrs`.
-
-```ruby
-expect(chef_run).to read_zookeeper_bridge_attrs("/chef/#{node['fqdn']}/attributes")
-```
-
-### write_zookeeper_bridge_attrs(path)
-
-Assert that the *Chef Run* writes `zookeeper_bridge_attrs`.
-
-```ruby
-expect(chef_run).to write_zookeeper_bridge_attrs("/chef/#{node['fqdn']}/attributes")
-```
-
-### run_zookeeper_bridge_cli(command)
-
-Assert that the *Chef Run* runs `zookeeper_bridge_cli`.
-
-```ruby
-expect(chef_run).to run_zookeeper_bridge_cli("create /test some_random_data")
-```
-
-### run_zookeeper_bridge_rdlock(path)
-
-Assert that the *Chef Run* runs `zookeeper_bridge_rdlock`.
-
-```ruby
-expect(chef_run).to run_zookeeper_bridge_rdlock("my_lock")
-```
-
-### run_zookeeper_bridge_sem(path)
-
-Assert that the Chef Run runs `zookeeper_bridge_sem`.
-
-```ruby
-expect(chef_run).to run_zookeeper_bridge_sem("my_semaphore")
-  .with_size(1)
-```
-
-### run_zookeeper_bridge_wait(path)
-
-Assert that the Chef run runs `zookeeper_bridge_wait`.
-
-```ruby
-# ensure waits until the attributes file exists
-expect(chef_run).to run_zookeeper_bridge_wait("/chef/#{node['fqdn']}/attributes")
-  .with_status(:created)
-  .with_event(:none)
-```
-
-### run_zookeeper_bridge_wrlock(path)
-
-Assert that the Chef run runs `zookeeper_bridge_wrlock`.
-
-```ruby
-expect(chef_run).to run_zookeeper_bridge_wrlock("my_lock")
-```
+See [CONTRIBUTING.md](https://github.com/onddo/zookeeper_bridge-cookbook/blob/master/CONTRIBUTING.md).
 
 
 License and Author
-=====================
+==================
 
 |                      |                                          |
 |:---------------------|:-----------------------------------------|
-| **Author:**          | Xabier de Zuazo (<xabier@onddo.com>)
-| **Copyright:**       | Copyright (c) 2013 Onddo Labs, SL. (www.onddo.com)
+| **Author:**          | [Xabier de Zuazo](https://github.com/zuazo) (<xabier@onddo.com>)
+| **Copyright:**       | Copyright (c) 2013-2014, Onddo Labs, SL. (www.onddo.com)
 | **License:**         | Apache License, Version 2.0
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+        http://www.apache.org/licenses/LICENSE-2.0
 
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
