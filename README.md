@@ -90,6 +90,178 @@ Install some dependencies required by this cookbook.
 Resources
 =========
 
+## zookeeper_bridge_rdlock[path]
+
+Runs a [Read or Shared Lock](http://en.wikipedia.org/wiki/Readers%E2%80%93writer_lock) inside ZooKeeper. This resource is intended to be used together with the `zookeeper_bridge_wrlock` resource.
+
+### zookeeper_bridge_rdlock actions
+
+* `run`
+
+### zookeeper_bridge_rdlock parameters
+
+<table>
+  <tr>
+    <th>Parameter</th>
+    <th>Description</th>
+    <th>Default</th>
+  </tr>
+  <tr>
+    <td>path</td>
+    <td>Znode path.</td>
+    <td><em>name</em></td>
+  </tr>
+  <tr>
+    <td><code>server</code></td>
+    <td>ZooKeeper server address.</td>
+    <td><code>"127.0.0.1:2181"</code></td>
+  </tr>
+  <tr>
+    <td><code>wait</code></td>
+    <td>This can be an integer to wait a maximum of seconds and raise a timeout exception if this time is exceeded. By default is set to <code>true</code>, which will wait infinitely.</td>
+    <td><code>true</code></td>
+  </tr>
+  <tr>
+    <td><code>block</code></td>
+    <td>The <em>recipe code</em> that will be run within the lock.</td>
+    <td><code>nil</code></td>
+  </tr>
+</table>
+
+### zookeeper_bridge_rdlock examples
+
+```ruby
+zookeeper_bridge_rdlock 'lock1' do
+  servrer 'zk.example.com'
+  block do
+    # recipe code can be used here
+    execute '...'
+  end
+end
+```
+
+Then you can use an exclusive lock from another node:
+
+```ruby
+zookeeper_bridge_wrlock 'lock1' do
+  servrer 'zk.example.com'
+  block do
+    # recipe code can be used here
+    execute '...'
+  end
+end
+```
+
+## zookeeper_bridge_wrlock[path]
+
+Runs a [Write or Exclusive Lock](http://en.wikipedia.org/wiki/Readers%E2%80%93writer_lock) inside ZooKeeper. This resource is intended to be used together with the `zookeeper_bridge_rdlock` resource.
+
+### zookeeper_bridge_wrlock actions
+
+* `run`
+
+### zookeeper_bridge_wrlock parameters
+
+<table>
+  <tr>
+    <th>Parameter</th>
+    <th>Description</th>
+    <th>Default</th>
+  </tr>
+  <tr>
+    <td>path</td>
+    <td>Znode path.</td>
+    <td><em>name</em></td>
+  </tr>
+  <tr>
+    <td><code>server</code></td>
+    <td>ZooKeeper server address.</td>
+    <td><code>"127.0.0.1:2181"</code></td>
+  </tr>
+  <tr>
+    <td><code>wait</code></td>
+    <td>This can be an integer to wait a maximum of seconds and raise a timeout exception if this time is exceeded. By default is set to <code>true</code>, which will wait infinitely.</td>
+    <td><code>true</code></td>
+  </tr>
+  <tr>
+    <td><code>block</code></td>
+    <td>The <em>recipe code</em> that will be run within the lock.</td>
+    <td><code>nil</code></td>
+  </tr>
+</table>
+
+### zookeeper_bridge_rdlock examples
+
+The following block will only be running by a maximum of one node at a particular instant:
+
+```ruby
+zookeeper_bridge_wrlock 'lock1' do
+  servrer 'zk.example.com'
+  block do
+    # recipe code can be used here
+    execute '...'
+  end
+end
+```
+
+## zookeeper_bridge_sem[path]
+
+Runs a [Semaphore](http://en.wikipedia.org/wiki/Semaphore_%28programming%29) inside ZooKeeper.
+
+### zookeeper_bridge_sem actions
+
+* `run`
+
+### zookeeper_bridge_sem parameters
+
+<table>
+  <tr>
+    <th>Parameter</th>
+    <th>Description</th>
+    <th>Default</th>
+  </tr>
+  <tr>
+    <td>path</td>
+    <td>Znode path.</td>
+    <td><em>name</em></td>
+  </tr>
+  <tr>
+    <td><code>server</code></td>
+    <td>ZooKeeper server address.</td>
+    <td><code>"127.0.0.1:2181"</code></td>
+  </tr>
+  <tr>
+    <td><code>size</code></td>
+    <td>Semaphore size: the maximum number of nodes that will be able to run the block at the same time.</td>
+    <td><code>nil</code></td>
+  </tr>
+  <tr>
+    <td><code>block</code></td>
+    <td>The <em>recipe code</em> that will be run within the semaphore.</td>
+    <td><code>nil</code></td>
+  </tr>
+  <tr>
+    <td><code>wait</code></td>
+    <td>This can be an integer to wait a maximum of seconds and raise a timeout exception if this time is exceeded. By default is set to <code>true</code>, which will wait infinitely.</td>
+    <td><code>true</code></td>
+  </tr>
+</table>
+
+### zookeeper_bridge_sem examples
+
+You can call this from multiple nodes. The code within the following block will be running by a maximum of three nodes at the same time:
+
+```ruby
+zookeeper_bridge_sem 'sem1' do
+  servrer 'zk.example.com'
+  size 3
+  block do
+    # recipe code can be used here
+    execute '...'
+  end
+end
+```
+
 ## zookeeper_bridge_attrs[path]
 
 Used to read or write Chef Node attributes from or to ZooKeeper znode paths. The attributes are saved into the znode using *JSON* format.
@@ -109,7 +281,7 @@ Used to read or write Chef Node attributes from or to ZooKeeper znode paths. The
   </tr>
   <tr>
     <td>path</td>
-    <td>Znode path</td>
+    <td>Znode path.</td>
     <td><em>name</em></td>
   </tr>
   <tr>
@@ -129,7 +301,7 @@ Used to read or write Chef Node attributes from or to ZooKeeper znode paths. The
   </tr>
   <tr>
     <td>force_encoding</td>
-    <td>Force character encoding. For example: <code>"UTF-8"</code></td>
+    <td>Force character encoding. For example: <code>"UTF-8"</code>.</td>
     <td><code>nil</code></td>
   </tr>
 </table>
@@ -189,7 +361,7 @@ Waits until a given ZooKeeper znode path exists, not exists or changes its state
   </tr>
   <tr>
     <td>path</td>
-    <td>Znode path</td>
+    <td>Znode path.</td>
     <td><em>name</em></td>
   </tr>
   <tr>
