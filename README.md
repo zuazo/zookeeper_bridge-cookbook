@@ -158,7 +158,7 @@ Waits until a given ZooKeeper znode path exists, not exists or changes its state
 
 ### zookeeper_bridge_wait actions
 
-* `wait`
+* `run`
 
 ### zookeeper_bridge_wait attributes
 
@@ -199,7 +199,7 @@ zookeeper_bridge_wait "/chef/#{hostname}" do
   status :created
   event :none
   action :nothing
-end.run_action(:wait)
+end.run_action(:run)
 ```
 
 ## zookeeper_bridge_cli[path]

@@ -1,6 +1,6 @@
 # encoding: UTF-8
 
-actions :wait
+actions :run
 
 attribute :path,   kind_of: String, name_attribute: true
 attribute :server, kind_of: String, default: nil
@@ -11,5 +11,5 @@ attribute :event,
 
 def initialize(*args)
   super
-  @action = :wait
+  @action = :run
 end

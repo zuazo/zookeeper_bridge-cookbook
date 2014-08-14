@@ -8,7 +8,7 @@ def server
   new_resource.server || node['zookeeper_bridge']['server']
 end
 
-action :wait do
+action :run do
   converge_by("wait #{new_resource}") do
     zk_locker = Chef::ZookeeperBridge::StatusLocker.new(server)
     case new_resource.status.to_sym
