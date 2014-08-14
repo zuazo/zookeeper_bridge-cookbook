@@ -1,12 +1,11 @@
 Description
 ===========
-
 [![Cookbook Version](https://img.shields.io/cookbook/v/zookeeper_bridge.svg?style=flat)](https://supermarket.getchef.com/cookbooks/zookeeper_bridge)
 [![Dependency Status](http://img.shields.io/gemnasium/onddo/zookeeper_bridge-cookbook.svg?style=flat)](https://gemnasium.com/onddo/zookeeper_bridge-cookbook)
 [![Code Climate](http://img.shields.io/codeclimate/github/onddo/zookeeper_bridge-cookbook.svg?style=flat)](https://codeclimate.com/github/onddo/zookeeper_bridge-cookbook)
 [![Build Status](http://img.shields.io/travis/onddo/zookeeper_bridge-cookbook.svg?style=flat)](https://travis-ci.org/onddo/zookeeper_bridge-cookbook)
 
-Chef `zookeeper_bridge` cookbook, used to help integrating the Chef Run with ZooKeeper.
+Chef `zookeeper_bridge` cookbook, used to help integrating the *Chef Run* with ZooKeeper.
 
 It can help in the following:
 
@@ -19,7 +18,7 @@ It can help in the following:
 
 Some of the resources included in this cookbook have not been widely tested, so you should consider this cookbook as something **experimental**.
 
-This cookbook is mainly used by calling the Resources it provides. See their documentation below. The `zookeeper_bridge::default` recipe needs to be included before its use.
+This cookbook is mainly used by calling the resources it provides. See their documentation below. The `zookeeper_bridge::default` recipe needs to be included before their use.
 
 Requirements
 ============
@@ -39,7 +38,7 @@ Please, [let us know](https://github.com/onddo/zookeeper_bridge-cookbook/issues/
 
 ## Cookbook Requirements
 
-* [build-essential](https://supermarket.getchef.com/cookbooks/build-essential)
+* [build-essential](https://supermarket.getchef.com/cookbooks/build-essential) `~> 2.0`
 * [chef_handler](https://supermarket.getchef.com/cookbooks/chef_handler)
 
 ## Application Requirements
@@ -58,17 +57,17 @@ Attributes
   </tr>
   <tr>
     <td><code>node['zookeeper_bridge']['server']</code></td>
-    <td>Zookeeper server address.</td>
+    <td>ZooKeeper server address.</td>
     <td><code>"127.0.0.1:2181"</code></td>
   </tr>
   <tr>
     <td><code>node['zookeeper_bridge']['chef_handler']['version']</code></td>
-    <td>chef-handler-zookeeper gem version to install.</td>
+    <td><code>chef-handler-zookeeper</code> gem version to install.</td>
     <td><code>nil</code> <em>(latest)</em></td>
   </tr>
   <tr>
     <td><code>node['zookeeper_bridge']['chef_handler']['znode']</code></td>
-    <td>chef-handler-zookeeper znode path.</td>
+    <td><code>chef-handler-zookeeper</code> znode path.</td>
     <td><code>"/chef/#{node['fqdn']}/status"</code></td>
   </tr>
 </table>
@@ -93,18 +92,18 @@ Resources
 
 ## zookeeper_bridge_attrs[path]
 
-Used to read or write Chef Node attributes from or to ZooKeeper znode paths. The attributes are saved into the znode using JSON format.
+Used to read or write Chef Node attributes from or to ZooKeeper znode paths. The attributes are saved into the znode using *JSON* format.
 
 ### zookeeper_bridge_attrs actions
 
 * `read`: Read Node attributes from a znode.
 * `write`: Write Node attributes to a znode.
 
-### zookeeper_bridge_attrs attributes
+### zookeeper_bridge_attrs parameters
 
 <table>
   <tr>
-    <th>Attribute</th>
+    <th>Parameter</th>
     <th>Description</th>
     <th>Default</th>
   </tr>
@@ -180,11 +179,11 @@ Waits until a given ZooKeeper znode path exists, not exists or changes its state
 
 * `run`
 
-### zookeeper_bridge_wait attributes
+### zookeeper_bridge_wait parameters
 
 <table>
   <tr>
-    <th>Attribute</th>
+    <th>Parameter</th>
     <th>Description</th>
     <th>Default</th>
   </tr>
@@ -200,12 +199,12 @@ Waits until a given ZooKeeper znode path exists, not exists or changes its state
   </tr>
   <tr>
     <td>status</td>
-    <td>Wait until znode has this status. Possible values: <code>:any</code>, <code>:created</code> or <code>:deleted.</code>. <code>:any</code> means to ignore the status, used when the <code>event</code> attribute below is set.</td>
+    <td>Wait until znode has this status. Possible values: <code>:any</code>, <code>:created</code> or <code>:deleted.</code>. <code>:any</code> means to ignore the status, used when the <code>event</code> parameter below is set.</td>
     <td><code>:any</code></td>
   </tr>
   <tr>
     <td>event</td>
-    <td>Wait until specific znode event occurs. Possible values: <code>:none</code>, <code>:created</code>, <code>:deleted.</code>, <code>:changed</code>, <code>:child</code> or an array of multiple values. <code>:none</code> means to ignore the events, used when the <code>status</code> attribute is set. <code>:child</code> is for znode child events.</td>
+    <td>Wait until specific znode event occurs. Possible values: <code>:none</code>, <code>:created</code>, <code>:deleted.</code>, <code>:changed</code>, <code>:child</code> or an array of multiple values. <code>:none</code> means to ignore the events, used when the <code>status</code> parameter is set. <code>:child</code> is for znode child events.</td>
     <td><code>:none</code></td>
   </tr>
 </table>
@@ -263,11 +262,11 @@ Runs a ZooKeeper command using the `zkCli.sh` script. Remember that this script 
 
 * `run`: Runs a command.
 
-### zookeeper_bridge_cli attributes
+### zookeeper_bridge_cli parameters
 
 <table>
   <tr>
-    <th>Attribute</th>
+    <th>Parameter</th>
     <th>Description</th>
     <th>Default</th>
   </tr>
