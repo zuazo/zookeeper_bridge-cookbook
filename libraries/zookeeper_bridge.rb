@@ -47,78 +47,6 @@ class Chef
       [root_node, ::File.basename(path)]
     end
 
-    def zk_read_hash(path, encoding = nil, force = false)
-      # TODO: raise differente exception for connection errors
-      attrs, stat = @zk.get(path)
-      attrs = force_encoding(attrs, encoding) unless encoding.nil?
-      fail ZkHashFormatError unless attrs.is_a?(String)
-      [JSON.parse(attrs), version: stat.version]
-    rescue JSON::ParserError
-      if force
-        [{}, {}]
-      else
-        raise ZkHashFormatError
-      end
-    end
-
-    def zk_write_hash(path, attrs, key = nil, encoding = nil)
-      attrs = force_encoding(attrs, encoding) unless encoding.nil?
-      attrs = { key => attrs } unless key.nil?
-      @zk.create(path, attrs.to_json)
-    end
-
-    def zk_merge_hash(path, attrs, key = nil, encoding = nil)
-      # TODO: test this hash merge properly
-      attrs = force_encoding(attributes, encoding) unless encoding.nil?
-      read_attrs, version = zk_read_hash(path, encoding, true)
-      if !key.nil?
-        return false if read_attrs[key] == attrs
-        attrs = read_attrs[key].merge(attrs) if read_attrs.key?(key)
-      else
-        return false if read_attrs == attrs
-        attrs = read_attrs.merge(attrs)
-      end
-      @zk.set(path, attrs.to_json, version)
-    end
-
-    def event_types_hash(event_types)
-      event_types_ary = [event_types].flatten
-      event_types_ary.each_with_object({}) do |v, r|
-        r["ZOO_#{v.to_s.upcase}_EVENT"] = v.to_sym
-      end
-    end
-
-    def subscribe_until_event(path, event_types)
-      event_types_hs = event_types_hash(event_types)
-      @zk.register(path) do |event|
-        yield(event_types_hs[event]) if event_types_hs.key?(event.event_name)
-      end
-    end
-
-    def subscribe_until_created(path)
-      @zk.register(path) do |event|
-        if event.node_created?
-          yield(:created)
-        else
-          if @zk.exists?(event.path, watch: true)
-            yield(:created) # ooh! surprise! There it is!
-          end
-        end
-      end
-    end
-
-    def subscribe_until_deleted(path)
-      @zk.register(path) do |event|
-        if event.node_deleted?
-          yield(:deleted)
-        else
-          unless @zk.exists?(event.path, watch:  true)
-            yield(:deleted) # ooh! surprise! it's gone!
-          end
-        end
-      end
-    end
-
     public
 
     def initialize(server)
@@ -166,8 +94,50 @@ class Chef
       end
     end # Locker
 
-    # ZooKeeper blockers until desired state is met
+    # ZooKeeper lockers until the desired state is met
     class StatusLocker < ZookeeperBridge
+      private
+
+      def event_types_hash(event_types)
+        event_types_ary = [event_types].flatten
+        event_types_ary.each_with_object({}) do |v, r|
+          r["ZOO_#{v.to_s.upcase}_EVENT"] = v.to_sym
+        end
+      end
+
+      def subscribe_until_event(path, event_types)
+        event_types_hs = event_types_hash(event_types)
+        @zk.register(path) do |event|
+          yield(event_types_hs[event]) if event_types_hs.key?(event.event_name)
+        end
+      end
+
+      def subscribe_until_created(path)
+        @zk.register(path) do |event|
+          if event.node_created?
+            yield(:created)
+          else
+            if @zk.exists?(event.path, watch: true)
+              yield(:created) # ooh! surprise! there it is!
+            end
+          end
+        end
+      end
+
+      def subscribe_until_deleted(path)
+        @zk.register(path) do |event|
+          if event.node_deleted?
+            yield(:deleted)
+          else
+            unless @zk.exists?(event.path, watch:  true)
+              yield(:deleted) # ooh! surprise! it's gone!
+            end
+          end
+        end
+      end
+
+      public
+
       def until_znode_event(path, events)
         queue = Queue.new
         ev_sub = subscribe_until_event(path, events) { |e| queue.enq(e) }
@@ -204,6 +174,42 @@ class Chef
 
     # ZooKeeper logic to read/write node attributes
     class Attributes < ZookeeperBridge
+      private
+
+      def zk_read_hash(path, encoding = nil, force = false)
+        # TODO: raise differente exception for connection errors
+        attrs, stat = @zk.get(path)
+        attrs = force_encoding(attrs, encoding) unless encoding.nil?
+        fail ZkHashFormatError unless attrs.is_a?(String)
+        [JSON.parse(attrs), version: stat.version]
+      rescue JSON::ParserError
+        if force
+          [{}, {}]
+        else
+          raise ZkHashFormatError
+        end
+      end
+
+      def zk_write_hash(path, attrs, key = nil, encoding = nil)
+        attrs = force_encoding(attrs, encoding) unless encoding.nil?
+        attrs = { key => attrs } unless key.nil?
+        !@zk.create(path, attrs.to_json).nil?
+      end
+
+      def zk_merge_hash(path, attrs, key = nil, encoding = nil)
+        # TODO: test this hash merge properly
+        attrs = force_encoding(attributes, encoding) unless encoding.nil?
+        orig_attrs, ver = zk_read_hash(path, encoding, true)
+        if !key.nil?
+          attrs = orig_attrs[key].merge(attrs) if orig_attrs.key?(key)
+        else
+          attrs = orig_attrs.merge(attrs)
+        end
+        orig_attrs != attrs ? !@zk.set(path, attrs.to_json, ver).nil? : false
+      end
+
+      public
+
       def read(path, attributes, key = nil, encoding = nil)
         attrs, _version = zk_read_hash(path, encoding, false)
         unless key.nil?

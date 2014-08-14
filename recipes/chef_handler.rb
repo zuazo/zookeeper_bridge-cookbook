@@ -29,18 +29,6 @@ argument_array = [
   znode: node['zookeeper_bridge']['chef_handler']['znode']
 ]
 
-# Install the `chef-handler-zookeeper` RubyGem during the compile phase
-if defined?(Chef::Resource::ChefGem)
-  chef_gem 'chef-handler-zookeeper' do
-    version node['zookeeper_bridge']['chef_handler']['version']
-  end
-else
-  gem_package('chef-handler-zookeeper') do
-    version node['zookeeper_bridge']['chef_handler']['version']
-    action :nothing
-  end.run_action(:install)
-end
-
 zookeeper_handler_path =
   if Gem::Specification.respond_to?('find_by_name')
     Gem::Specification.find_by_name('chef-handler-zookeeper').lib_dirs_glob
@@ -67,4 +55,4 @@ ruby_block 'trigger_start_handlers' do
     Chef::Handler.run_start_handlers(self)
   end
   action :nothing
-end.run_action(:create)
+end.run_action(:run)

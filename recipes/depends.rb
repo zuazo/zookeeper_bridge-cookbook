@@ -22,6 +22,15 @@ node.default['build-essential']['compiletime'] = true
 include_recipe 'build-essential'
 
 chef_gem 'zk' # not required in zookeeper_handler recipe, but does not harm
-chef_gem 'chef-handler-zookeeper' do
-  version node['zookeeper_bridge']['chef_handler']['version']
+
+# Install the `chef-handler-zookeeper` RubyGem during the compile phase
+if defined?(Chef::Resource::ChefGem)
+  chef_gem 'chef-handler-zookeeper' do
+    version node['zookeeper_bridge']['chef_handler']['version']
+  end
+else
+  gem_package('chef-handler-zookeeper') do
+    version node['zookeeper_bridge']['chef_handler']['version']
+    action :nothing
+  end.run_action(:install)
 end
