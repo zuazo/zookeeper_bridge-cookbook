@@ -19,13 +19,14 @@
 
 require 'spec_helper'
 
+# Fake class used to mock Gem and Gem::Specification classes
 class FakeGemSpecification
   def lib_dirs_glob
     '/tmp/chef-handler-zookeeper'
   end
 
   def all_load_paths
-    [ lib_dirs_glob ]
+    [lib_dirs_glob]
   end
 end
 
