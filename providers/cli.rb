@@ -1,16 +1,26 @@
+# encoding: UTF-8
+
 def whyrun_supported?
   true
+end
+
+def base_path
+  new_resource.base_path(
+    if new_resource.base_path.nil?
+      ::File.join(
+        node['zookeeper']['install_dir'],
+        "zookeeper-#{node['zookeeper']['version']}"
+      )
+    else
+      new_resource.base_path
+    end
+  )
 end
 
 action :run do
   # TODO: a bit tricky
   command = new_resource.command.gsub(/\\/, '\\\\').gsub(/"/, '\\"')
-  cli = ::File.join(
-    node[:zookeeper][:install_dir],
-    "zookeeper-#{node[:zookeeper][:version]}",
-    'bin',
-    'zkCli.sh'
-  )
+  cli = ::File.join(base_path, 'bin', 'zkCli.sh')
   sleep_prefix =
     if new_resource.sleep && new_resource.sleep > 0
       "sleep '#{new_resource.sleep}' && "

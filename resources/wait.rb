@@ -1,3 +1,5 @@
+# encoding: UTF-8
+
 actions :wait
 
 attribute :path,   kind_of: String, name_attribute: true

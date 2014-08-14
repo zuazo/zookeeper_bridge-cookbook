@@ -1,6 +1,7 @@
+# encoding: UTF-8
 #
 # Cookbook Name:: zookeeper_bridge
-# Recipe:: zookeeper_handler
+# Recipe:: chef_handler
 #
 # Copyright 2013, Onddo Labs, Sl.
 #

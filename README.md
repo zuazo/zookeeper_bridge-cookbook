@@ -224,6 +224,11 @@ Runs a ZooKeeper command using the `zkCli.sh` script. Remember that this script 
     <td><em>name</em></td>
   </tr>
   <tr>
+    <td>base_path</td>
+    <td>ZooKeeper installation path.</td>
+    <td><code>"#{node['zookeeper']['install_dir']}/zookeeper-#{node['zookeeper']['version']}"</code></td>
+  </tr>
+  <tr>
     <td>sleep</td>
     <td>Time to sleep in seconds before the command is run (type <code>Float</code>).</td>
     <td><code>nil</code></td>

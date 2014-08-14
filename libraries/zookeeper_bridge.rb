@@ -1,3 +1,8 @@
+# encoding: UTF-8
+
+# Based on ZK gem examples:
+#   https://github.com/zk-ruby/zk/blob/master/docs/examples
+
 require 'json'
 begin
   require 'zk'
@@ -8,6 +13,8 @@ end
 class Chef
   # Chef helpers to interact with ZooKeeper
   class ZookeeperBridge
+    class ZkHashFormatError < StandardError; end
+
     # Load the required dependencies
     class Depends
       def self.load
@@ -35,17 +42,80 @@ class Chef
     end
 
     def path_to_name_and_root_node(path)
-      name = ::File.basename(path)
       root_node = ::File.dirname(path)
       root_node = nil if root_node == '.'
+      [root_node, ::File.basename(path)]
+    end
 
-      [root_node, name]
+    def zk_read_hash(path, encoding = nil, force = false)
+      # TODO: raise differente exception for connection errors
+      attrs, stat = @zk.get(path)
+      attrs = force_encoding(attrs, encoding) unless encoding.nil?
+      fail ZkHashFormatError unless attrs.is_a?(String)
+      [JSON.parse(attrs), version: stat.version]
+    rescue JSON::ParserError
+      if force
+        [{}, {}]
+      else
+        raise ZkHashFormatError
+      end
+    end
+
+    def zk_write_hash(path, attrs, key = nil, encoding = nil)
+      attrs = force_encoding(attrs, encoding) unless encoding.nil?
+      attrs = { key => attrs } unless key.nil?
+      @zk.create(path, attrs.to_json)
+    end
+
+    def zk_merge_hash(path, attrs, key = nil, encoding = nil)
+      # TODO: test this hash merge properly
+      attrs = force_encoding(attributes, encoding) unless encoding.nil?
+      read_attrs, version = zk_read_hash(path, encoding, true)
+      if !key.nil?
+        return false if read_attrs[key] == attrs
+        attrs = read_attrs[key].merge(attrs) if read_attrs.key?(key)
+      else
+        return false if read_attrs == attrs
+        attrs = read_attrs.merge(attrs)
+      end
+      @zk.set(path, attrs.to_json, version)
     end
 
     def event_types_hash(event_types)
       event_types_ary = [event_types].flatten
       event_types_ary.each_with_object({}) do |v, r|
         r["ZOO_#{v.to_s.upcase}_EVENT"] = v.to_sym
+      end
+    end
+
+    def subscribe_until_event(path, event_types)
+      event_types_hs = event_types_hash(event_types)
+      @zk.register(path) do |event|
+        yield(event_types_hs[event]) if event_types_hs.key?(event.event_name)
+      end
+    end
+
+    def subscribe_until_created(path)
+      @zk.register(path) do |event|
+        if event.node_created?
+          yield(:created)
+        else
+          if @zk.exists?(event.path, watch: true)
+            yield(:created) # ooh! surprise! There it is!
+          end
+        end
+      end
+    end
+
+    def subscribe_until_deleted(path)
+      @zk.register(path) do |event|
+        if event.node_deleted?
+          yield(:deleted)
+        else
+          unless @zk.exists?(event.path, watch:  true)
+            yield(:deleted) # ooh! surprise! it's gone!
+          end
+        end
       end
     end
 
@@ -56,157 +126,104 @@ class Chef
       @zk = ZK.new(server)
     end
 
-    # Based on ZK gem examples:
-    #   https://github.com/zk-ruby/zk/blob/master/docs/examples
-
-    def block_until_znode_event(abs_node_path, event_types)
-      queue = Queue.new
-      event_types_hs = event_types_hash(event_types)
-      ev_sub = @zk.register(abs_node_path) do |event|
-        if event_types_hs.key?(event.event_name)
-          queue.enq(event_types_hs[event.event_name])
-        end
-      end
-      @zk.stat(abs_node_path, watch: true)
-      queue.pop # block waiting for node change
-    ensure
-      ev_sub.unsubscribe unless ev_sub.nil?
+    def close
+      @zk.close
     end
 
-    def block_until_znode_created(abs_node_path)
-      queue = Queue.new
-
-      ev_sub = @zk.register(abs_node_path) do |event|
-        if event.node_created?
-          queue.enq(:created)
-        else
-          if @zk.exists?(abs_node_path, watch: true)
-            queue.enq(:created) # ooh! surprise! There it is!
-          end
+    # ZooKeeper different locks logic
+    class Locker < ZookeeperBridge
+      def shared_lock(path, wait)
+        root_node, name = path_to_name_and_root_node(path)
+        lock = ZK::Locker::SharedLocker.new(@zk, name, root_node)
+        lock.with_lock(wait: wait) do
+          Chef::Log.debug(
+            "Zookeeper Bridge #{__method__.to_s.gsub('_', ' ')} in \"#{path}\""
+          )
+          yield
         end
       end
 
-      # set up the callback, but bail if we don't need to wait
-      return true if @zk.exists?(abs_node_path, watch:  true)
-
-      queue.pop # block waiting for node creation
-      true
-    ensure
-      ev_sub.unsubscribe unless ev_sub.nil?
-    end
-
-    def block_until_znode_changed(abs_node_path)
-      block_until_znode_event(abs_node_path, :changed)
-      true
-    end
-
-    def block_until_znode_deleted(abs_node_path)
-      queue = Queue.new
-
-      ev_sub = @zk.register(abs_node_path) do |event|
-        if event.node_deleted?
-          queue.enq(:deleted)
-        else
-          unless @zk.exists?(abs_node_path, watch:  true)
-            # ooh! surprise! it's gone!
-            queue.enq(:deleted)
-          end
+      def exclusive_lock(path, wait)
+        root_node, name = path_to_name_and_root_node(path)
+        lock = ZK::Locker::ExclusiveLocker.new(@zk, name, root_node)
+        lock.with_lock(wait: wait) do
+          Chef::Log.debug(
+            "Zookeeper Bridge #{__method__.to_s.gsub('_', ' ')} in \"#{path}\""
+          )
+          yield
         end
       end
 
-      # set up the callback, but bail if we don't need to wait
-      return true unless @zk.exists?(abs_node_path, watch:  true)
+      def semaphore(path, size, wait)
+        root_node, name = path_to_name_and_root_node(path)
+        lock = ZK::Locker::Semaphore.new(@zk, name, size, root_node)
+        lock.with_lock(wait: wait) do
+          Chef::Log.debug(
+            "Zookeeper Bridge #{__method__.to_s.gsub('_', ' ')} in \"#{path}\""
+          )
+          yield
+        end
+      end
+    end # Locker
 
-      queue.pop # block waiting for node deletion
-      true
-    ensure
-      ev_sub.unsubscribe unless ev_sub.nil?
-    end
+    # ZooKeeper blockers until desired state is met
+    class StatusLocker < ZookeeperBridge
+      def until_znode_event(path, events)
+        queue = Queue.new
+        ev_sub = subscribe_until_event(path, events) { |e| queue.enq(e) }
+        @zk.stat(path, watch: true)
+        queue.pop # block waiting for node change
+      ensure
+        ev_sub.unsubscribe unless ev_sub.nil?
+      end
 
-    def attributes_read(abs_node_path, attributes, key = nil, encoding = nil)
-      attrs, _stat = @zk.get(abs_node_path)
-      attrs = force_encoding(attrs, encoding) unless encoding.nil?
-      if attrs.is_a?(String)
-        attrs = JSON.parse(attrs)
+      def until_znode_created(path)
+        queue = Queue.new
+        ev_sub = subscribe_until_created(path) { |e| queue.enq(e) }
+        # set up the callback, but bail if we don't need to wait
+        return true if @zk.exists?(path, watch:  true)
+        queue.pop # block waiting for node creation
+      ensure
+        ev_sub.unsubscribe unless ev_sub.nil?
+      end
+
+      def until_znode_changed(path)
+        block_until_znode_event(path, :changed)
+      end
+
+      def until_znode_deleted(path)
+        queue = Queue.new
+        ev_sub = subscribe_until_deleted(path) { |e| queue.enq(e) }
+        # set up the callback, but bail if we don't need to wait
+        return true unless @zk.exists?(path, watch:  true)
+        queue.pop # block waiting for node deletion
+      ensure
+        ev_sub.unsubscribe unless ev_sub.nil?
+      end
+    end # StatusLocker
+
+    # ZooKeeper logic to read/write node attributes
+    class Attributes < ZookeeperBridge
+      def read(path, attributes, key = nil, encoding = nil)
+        attrs, _version = zk_read_hash(path, encoding, false)
         unless key.nil?
           return false unless attrs.key?(key)
           attrs = attrs[key] unless key.nil?
         end
         attributes.merge!(attrs)
-        return true
+        true
+      rescue ZkHashFormatError
+        false
       end
-      false
-    end
 
-    def attributes_write(abs_node_path, attributes, key = nil, encoding = nil)
-      attributes = attributes.to_hash
-      attributes = force_encoding(attributes, encoding) unless encoding.nil?
-      if @zk.exists?(abs_node_path)
-        # TODO: test this hash merge properly
-        read_data, stat = @zk.get(abs_node_path)
-        if read_data.length > 0
-          read_data = JSON.parse(read_data)
-          if !key.nil?
-            return false if read_data[key] == attributes
-            attributes =
-              if read_data.key?(key)
-                read_data[key].merge(attributes)
-              else
-                attributes
-              end
-          else
-            return false if read_data == attributes
-            attributes = read_data.merge(attributes)
-          end
+      def write(path, attributes, key = nil, encoding = nil)
+        attributes = attributes.to_hash
+        if @zk.exists?(path)
+          zk_merge_hash(path, attributes, key, encoding)
         else
-          attributes = { key => attributes } unless key.nil?
+          zk_write_hash(path, attributes, key, encoding)
         end
-        @zk.set(abs_node_path, attributes.to_json, version: stat.version)
-      else
-        attributes = { key => attributes } unless key.nil?
-        @zk.create(abs_node_path, attributes.to_json)
       end
-      true
-    end
-
-    def shared_lock(path, wait)
-      root_node, name = path_to_name_and_root_node(path)
-
-      lock = ZK::Locker::SharedLocker.new(@zk, name, root_node)
-      lock.with_lock(wait: wait) do
-        Chef::Log.debug(
-          "Zookeeper Bridge #{__method__.to_s.gsub('_', ' ')} in \"#{path}\""
-        )
-        yield
-      end
-    end
-
-    def exclusive_lock(path, wait)
-      root_node, name = path_to_name_and_root_node(path)
-
-      lock = ZK::Locker::ExclusiveLocker.new(@zk, name, root_node)
-      lock.with_lock(wait: wait) do
-        Chef::Log.debug(
-          "Zookeeper Bridge #{__method__.to_s.gsub('_', ' ')} in \"#{path}\""
-        )
-        yield
-      end
-    end
-
-    def semaphore(path, size, wait)
-      root_node, name = path_to_name_and_root_node(path)
-
-      lock = ZK::Locker::Semaphore.new(@zk, name, size, root_node)
-      lock.with_lock(wait: wait) do
-        Chef::Log.debug(
-          "Zookeeper Bridge #{__method__.to_s.gsub('_', ' ')} in \"#{path}\""
-        )
-        yield
-      end
-    end
-
-    def close
-      @zk.close
-    end
-  end
+    end # Attributes
+  end # ZookeeperBridge
 end
