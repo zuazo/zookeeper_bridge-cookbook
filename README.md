@@ -313,6 +313,11 @@ Please do not hesitate to [open an issue](https://github.com/onddo/zookeeper_bri
 
 See [CONTRIBUTING.md](https://github.com/onddo/zookeeper_bridge-cookbook/blob/master/CONTRIBUTING.md).
 
+TODO
+====
+
+See [TODO.md](https://github.com/onddo/mysql_tuning-cookbook/blob/master/TODO.md).
+
 
 License and Author
 ==================

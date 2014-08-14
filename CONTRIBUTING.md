@@ -9,3 +9,5 @@ Contributing
 6. Commit your change (`$ git commit -am 'Add some feature'`).
 7. Push to the branch (`$ git push origin my-new-feature`).
 8. [Submit a Pull Request using Github](https://help.github.com/articles/creating-a-pull-request).
+
+Please do not hesitate to [open an issue](https://github.com/onddo/zookeeper_bridge-cookbook/issues/new) with any questions or problems.

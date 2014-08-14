@@ -38,21 +38,10 @@ end
 
 forked_recipe_sleep = 3
 
-include_recipe 'zookeeper::zookeeper'
-
-zk_bin = ::File.join(
-  "#{node['zookeeper']['install_dir']}",
-  "zookeeper-#{node['zookeeper']['version']}",
-  'bin'
-)
-zk_server_bin = ::File.join(zk_bin, 'zkServer.sh')
-service 'zookeeper' do
-  restart_command "#{zk_server_bin} restart zoo_sample.cfg"
-  start_command "#{zk_server_bin} start zoo_sample.cfg"
-  status_command "#{zk_server_bin} status zoo_sample.cfg"
-  stop_command "#{zk_server_bin} stop zoo_sample.cfg"
-  action :start
-end
+node.default['zookeeper']['service_style'] = 'runit'
+include_recipe 'zookeeper::default'
+include_recipe 'runit'
+include_recipe 'zookeeper::service'
 
 include_recipe 'zookeeper_bridge'
 
