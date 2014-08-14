@@ -117,16 +117,14 @@ Used to read or write Chef Node attributes from or to ZooKeeper znode paths. The
 ```ruby
 # Reading/Writing all node attributes
 
-hostname = `hostname`.chomp
-
-zookeeper_bridge_attrs "/chef/#{hostname}/read_attributes" do
+zookeeper_bridge_attrs "/chef/#{node['fqdn']}/read_attributes" do
   attribute node.normal
   action :nothing
 end.run_action(:read)
 
 # [...]
 
-zookeeper_bridge_attrs "/chef/#{hostname}/write_attributes" do
+zookeeper_bridge_attrs "/chef/#{node['fqdn']}/write_attributes" do
   attribute node.attributes
   action :write
 end
@@ -137,16 +135,14 @@ end
 ```ruby
 # Reading/Writing Apache attributes
 
-hostname = `hostname`.chomp
-
-zookeeper_bridge_attrs "/chef/#{hostname}/read_attributes" do
+zookeeper_bridge_attrs "/chef/#{node['fqdn']}/read_attributes" do
   attribute node.normal['apache']
   action :nothing
 end.run_action(:read)
 
 # [...]
 
-zookeeper_bridge_attrs "/chef/#{hostname}/write_attributes" do
+zookeeper_bridge_attrs "/chef/#{node['fqdn']}/write_attributes" do
   attribute node['apache']
   action :write
 end
@@ -193,9 +189,8 @@ Waits until a given ZooKeeper znode path exists, not exists or changes its state
 ### zookeeper_bridge_wait example
 
 ```ruby
-# wait until hostname znode is created
-hostname = `hostname`.chomp
-zookeeper_bridge_wait "/chef/#{hostname}" do
+# wait until host znode is created
+zookeeper_bridge_wait "/chef/#{node['fqdn']}" do
   status :created
   event :none
   action :nothing
@@ -275,6 +270,68 @@ Contributing
 4. Write tests for your change (if applicable)
 5. Run the tests, ensuring they all pass
 6. Submit a Pull Request using Github
+
+## ChefSpec Matchers
+
+### read_zookeeper_bridge_attrs(path)
+
+Assert that the *Chef Run* reads `zookeeper_bridge_attrs`.
+
+```ruby
+expect(chef_run).to read_zookeeper_bridge_attrs("/chef/#{node['fqdn']}/attributes")
+```
+
+### write_zookeeper_bridge_attrs(path)
+
+Assert that the *Chef Run* writes `zookeeper_bridge_attrs`.
+
+```ruby
+expect(chef_run).to write_zookeeper_bridge_attrs("/chef/#{node['fqdn']}/attributes")
+```
+
+### run_zookeeper_bridge_cli(command)
+
+Assert that the *Chef Run* runs `zookeeper_bridge_cli`.
+
+```ruby
+expect(chef_run).to run_zookeeper_bridge_cli("create /test some_random_data")
+```
+
+### run_zookeeper_bridge_rdlock(path)
+
+Assert that the *Chef Run* runs `zookeeper_bridge_rdlock`.
+
+```ruby
+expect(chef_run).to run_zookeeper_bridge_rdlock("my_lock")
+```
+
+### run_zookeeper_bridge_sem(path)
+
+Assert that the Chef Run runs `zookeeper_bridge_sem`.
+
+```ruby
+expect(chef_run).to run_zookeeper_bridge_sem("my_semaphore")
+  .with_size(1)
+```
+
+### run_zookeeper_bridge_wait(path)
+
+Assert that the Chef run runs `zookeeper_bridge_wait`.
+
+```ruby
+# ensure waits until the attributes file exists
+expect(chef_run).to run_zookeeper_bridge_wait("/chef/#{node['fqdn']}/attributes")
+  .with_status(:created)
+  .with_event(:none)
+```
+
+### run_zookeeper_bridge_wrlock(path)
+
+Assert that the Chef run runs `zookeeper_bridge_wrlock`.
+
+```ruby
+expect(chef_run).to run_zookeeper_bridge_wrlock("my_lock")
+```
 
 
 License and Author
