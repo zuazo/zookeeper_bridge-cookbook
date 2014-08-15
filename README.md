@@ -68,7 +68,7 @@ Attributes
   <tr>
     <td><code>node['zookeeper_bridge']['chef_handler']['znode']</code></td>
     <td><code>chef-handler-zookeeper</code> znode path.</td>
-    <td><code>"/chef/#{node['fqdn']}/status"</code></td>
+    <td><code>"/chef/#{node.name}/status"</code></td>
   </tr>
 </table>
 
@@ -311,14 +311,14 @@ Used to read or write Chef Node attributes from or to ZooKeeper znode paths. The
 Reading and writing all node attributes from and to ZooKeeper:
 
 ```ruby
-zookeeper_bridge_attrs "/chef/#{node['fqdn']}/read_attributes" do
+zookeeper_bridge_attrs "/chef/#{node.name}/read_attributes" do
   attribute node.normal
   action :nothing
 end.run_action(:read)
 
 # [...]
 
-zookeeper_bridge_attrs "/chef/#{node['fqdn']}/write_attributes" do
+zookeeper_bridge_attrs "/chef/#{node.name}/write_attributes" do
   attribute node.attributes
   action :write
 end
@@ -330,14 +330,14 @@ Reading and writing Apache attributes:
 
 ```ruby
 # We use override in this case to overwrite default and normal values, why not?
-zookeeper_bridge_attrs "/chef/#{node['fqdn']}/apache_attributes" do
+zookeeper_bridge_attrs "/chef/#{node.name}/apache_attributes" do
   attribute node.override['apache']
   action :nothing
 end.run_action(:read)
 
 # [...]
 
-zookeeper_bridge_attrs "/chef/#{node['fqdn']}/apache_attributes" do
+zookeeper_bridge_attrs "/chef/#{node.name}/apache_attributes" do
   attribute node['apache']
   action :write
 end
@@ -386,7 +386,7 @@ Waits until a given ZooKeeper znode path exists, not exists or changes its state
 Wait until host znode is created (at compile time, to avoid compilling the next resources):
 
 ```ruby
-zookeeper_bridge_wait "/chef/#{node['fqdn']}" do
+zookeeper_bridge_wait "/chef/#{node.name}" do
   status :created
   event :none
   action :nothing
@@ -396,13 +396,13 @@ end.run_action(:run)
 Wait until the attributes exists before reading them:
 
 ```ruby
-zookeeper_bridge_wait "/chef/#{node['fqdn']}/attributes" do
+zookeeper_bridge_wait "/chef/#{node.name}/attributes" do
   status :created
   event :none
   action :nothing
 end.run_action(:run)
 
-zookeeper_bridge_attrs "/chef/#{node['fqdn']}/attributes" do
+zookeeper_bridge_attrs "/chef/#{node.name}/attributes" do
   attribute node.normal
   action :nothing
 end.run_action(:read)
@@ -411,7 +411,7 @@ end.run_action(:read)
 Continue the *Chef Run convergence* only when the *stop znode* does not exist:
 
 ```ruby
-zookeeper_bridge_wait "/chef/#{node['fqdn']}/chef_stop" do
+zookeeper_bridge_wait "/chef/#{node.name}/chef_stop" do
   status :deleted
   event :none
 end
@@ -420,7 +420,7 @@ end
 Continue the *Chef Run convergence* only when the *continue znode* is updated:
 
 ```ruby
-zookeeper_bridge_wait "/chef/#{node['fqdn']}/chef_continue" do
+zookeeper_bridge_wait "/chef/#{node.name}/chef_continue" do
   status :any
   event :changed
 end
