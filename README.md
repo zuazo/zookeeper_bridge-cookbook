@@ -114,7 +114,7 @@ Runs a [Read or Shared Lock](http://en.wikipedia.org/wiki/Readers%E2%80%93writer
   <tr>
     <td>server</td>
     <td>ZooKeeper server address.</td>
-    <td><code>"127.0.0.1:2181"</code></td>
+    <td><code>node['zookeeper_bridge']['server']</code></td>
   </tr>
   <tr>
     <td>wait</td>
@@ -176,7 +176,7 @@ Runs a [Write or Exclusive Lock](http://en.wikipedia.org/wiki/Readers%E2%80%93wr
   <tr>
     <td>server</td>
     <td>ZooKeeper server address.</td>
-    <td><code>"127.0.0.1:2181"</code></td>
+    <td><code>node['zookeeper_bridge']['server']</code></td>
   </tr>
   <tr>
     <td>wait</td>
@@ -228,7 +228,7 @@ Runs a [Semaphore](http://en.wikipedia.org/wiki/Semaphore_%28programming%29) ins
   <tr>
     <td>server</td>
     <td>ZooKeeper server address.</td>
-    <td><code>"127.0.0.1:2181"</code></td>
+    <td><code>node['zookeeper_bridge']['server']</code></td>
   </tr>
   <tr>
     <td>size</td>
