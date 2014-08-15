@@ -132,7 +132,7 @@ Runs a [Read or Shared Lock](http://en.wikipedia.org/wiki/Readers%E2%80%93writer
 
 ```ruby
 zookeeper_bridge_rdlock 'lock1' do
-  servrer 'zk.example.com'
+  server 'zk.example.com'
   block do
     # recipe code can be used here
     execute '...'
@@ -144,7 +144,7 @@ Then you can use an exclusive lock from another node:
 
 ```ruby
 zookeeper_bridge_wrlock 'lock1' do
-  servrer 'zk.example.com'
+  server 'zk.example.com'
   block do
     # recipe code can be used here
     execute '...'
@@ -190,13 +190,13 @@ Runs a [Write or Exclusive Lock](http://en.wikipedia.org/wiki/Readers%E2%80%93wr
   </tr>
 </table>
 
-### zookeeper_bridge_rdlock examples
+### zookeeper_bridge_wrlock examples
 
 The following block will only be running by a maximum of one node at a particular instant:
 
 ```ruby
 zookeeper_bridge_wrlock 'lock1' do
-  servrer 'zk.example.com'
+  server 'zk.example.com'
   block do
     # recipe code can be used here
     execute '...'
@@ -253,7 +253,7 @@ You can call this from multiple nodes. The code within the following block will 
 
 ```ruby
 zookeeper_bridge_sem 'sem1' do
-  servrer 'zk.example.com'
+  server 'zk.example.com'
   size 3
   block do
     # recipe code can be used here
@@ -329,7 +329,7 @@ end
 Reading and writing Apache attributes:
 
 ```ruby
-# We use overwrite in this case to overwrite default and normal values, why not?
+# We use override in this case to overwrite default and normal values, why not?
 zookeeper_bridge_attrs "/chef/#{node['fqdn']}/apache_attributes" do
   attribute node.override['apache']
   action :nothing
@@ -371,12 +371,12 @@ Waits until a given ZooKeeper znode path exists, not exists or changes its state
   </tr>
   <tr>
     <td>status</td>
-    <td>Wait until znode has this status. Possible values: <code>:any</code>, <code>:created</code> or <code>:deleted.</code>. <code>:any</code> means to ignore the status, used when the <code>event</code> parameter below is set.</td>
+    <td>Wait until znode has this status. Possible values: <code>:any</code>, <code>:created</code> or <code>:deleted.</code>. <code>:any</code> means to ignore the status, normally used when the <code>event</code> parameter below is set.</td>
     <td><code>:any</code></td>
   </tr>
   <tr>
     <td>event</td>
-    <td>Wait until specific znode event occurs. Possible values: <code>:none</code>, <code>:created</code>, <code>:deleted.</code>, <code>:changed</code>, <code>:child</code> or an array of multiple values. <code>:none</code> means to ignore the events, used when the <code>status</code> parameter is set. <code>:child</code> is for znode child events.</td>
+    <td>Wait until specific znode event occurs. Possible values: <code>:none</code>, <code>:created</code>, <code>:deleted.</code>, <code>:changed</code>, <code>:child</code> or an array of multiple values. <code>:none</code> means to ignore the events, normally used when the <code>status</code> parameter is set. <code>:child</code> is for znode child events.</td>
     <td><code>:none</code></td>
   </tr>
 </table>
@@ -408,7 +408,7 @@ zookeeper_bridge_attrs "/chef/#{node['fqdn']}/attributes" do
 end.run_action(:read)
 ```
 
-Continue the *Chef Run* only when the *stop znode* does not exist:
+Continue the *Chef Run convergence* only when the *stop znode* does not exist:
 
 ```ruby
 zookeeper_bridge_wait "/chef/#{node['fqdn']}/chef_stop" do
@@ -417,7 +417,7 @@ zookeeper_bridge_wait "/chef/#{node['fqdn']}/chef_stop" do
 end
 ```
 
-Continue the *Chef Run* only when the *continue znode* is updated:
+Continue the *Chef Run convergence* only when the *continue znode* is updated:
 
 ```ruby
 zookeeper_bridge_wait "/chef/#{node['fqdn']}/chef_continue" do
@@ -470,7 +470,7 @@ Runs a ZooKeeper command using the `zkCli.sh` script. Remember that this script 
 zookeeper_bridge_cli 'create /test some_random_data'
 ```
 
-This resource is currently used in the integration tests. See the `zookeeper_bridge_test` cookbook recipes for more usage examples.
+This resource is currently used in the integration tests. See the [zookeeper_bridge_test](https://github.com/onddo/zookeeper_bridge-cookbook/blob/master/test/cookbooks/zookeeper_bridge_test) cookbook recipes for more usage examples.
 
 Testing
 =======
@@ -487,7 +487,7 @@ See [CONTRIBUTING.md](https://github.com/onddo/zookeeper_bridge-cookbook/blob/ma
 TODO
 ====
 
-See [TODO.md](https://github.com/onddo/mysql_tuning-cookbook/blob/master/TODO.md).
+See [TODO.md](https://github.com/onddo/zookeeper_bridge-cookbook/blob/master/TODO.md).
 
 
 License and Author

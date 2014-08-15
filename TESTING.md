@@ -69,10 +69,10 @@ Then, you must configure test-kitchen to use `.kitchen.cloud.yml` configuration 
 
 ### read_zookeeper_bridge_attrs(path)
 
-Assert that the *Chef Run* reads `zookeeper_bridge_attrs`.
+Assert that the *Chef Run* reads `zookeeper_bridge_attrs` at compile time.
 
 ```ruby
-expect(chef_run).to read_zookeeper_bridge_attrs("/chef/#{node['fqdn']}/attributes")
+expect(chef_run).to read_zookeeper_bridge_attrs("/chef/#{node['fqdn']}/attributes").at_compile_time
 ```
 
 ### write_zookeeper_bridge_attrs(path)
@@ -110,7 +110,7 @@ expect(chef_run).to run_zookeeper_bridge_sem("my_semaphore")
 
 ### run_zookeeper_bridge_wait(path)
 
-Assert that the Chef run runs `zookeeper_bridge_wait`.
+Assert that the Chef Run runs `zookeeper_bridge_wait`.
 
 ```ruby
 # ensure waits until the attributes file exists
@@ -121,7 +121,7 @@ expect(chef_run).to run_zookeeper_bridge_wait("/chef/#{node['fqdn']}/attributes"
 
 ### run_zookeeper_bridge_wrlock(path)
 
-Assert that the Chef run runs `zookeeper_bridge_wrlock`.
+Assert that the Chef Run runs `zookeeper_bridge_wrlock`.
 
 ```ruby
 expect(chef_run).to run_zookeeper_bridge_wrlock("my_lock")
