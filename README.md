@@ -112,17 +112,17 @@ Runs a [Read or Shared Lock](http://en.wikipedia.org/wiki/Readers%E2%80%93writer
     <td><em>name</em></td>
   </tr>
   <tr>
-    <td><code>server</code></td>
+    <td>server</td>
     <td>ZooKeeper server address.</td>
     <td><code>"127.0.0.1:2181"</code></td>
   </tr>
   <tr>
-    <td><code>wait</code></td>
+    <td>wait</td>
     <td>This can be an integer to wait a maximum of seconds and raise a timeout exception if this time is exceeded. By default is set to <code>true</code>, which will wait infinitely.</td>
     <td><code>true</code></td>
   </tr>
   <tr>
-    <td><code>block</code></td>
+    <td>block</td>
     <td>The <em>recipe code</em> that will be run within the lock.</td>
     <td><code>nil</code></td>
   </tr>
@@ -174,17 +174,17 @@ Runs a [Write or Exclusive Lock](http://en.wikipedia.org/wiki/Readers%E2%80%93wr
     <td><em>name</em></td>
   </tr>
   <tr>
-    <td><code>server</code></td>
+    <td>server</td>
     <td>ZooKeeper server address.</td>
     <td><code>"127.0.0.1:2181"</code></td>
   </tr>
   <tr>
-    <td><code>wait</code></td>
+    <td>wait</td>
     <td>This can be an integer to wait a maximum of seconds and raise a timeout exception if this time is exceeded. By default is set to <code>true</code>, which will wait infinitely.</td>
     <td><code>true</code></td>
   </tr>
   <tr>
-    <td><code>block</code></td>
+    <td>block</td>
     <td>The <em>recipe code</em> that will be run within the lock.</td>
     <td><code>nil</code></td>
   </tr>
@@ -226,22 +226,22 @@ Runs a [Semaphore](http://en.wikipedia.org/wiki/Semaphore_%28programming%29) ins
     <td><em>name</em></td>
   </tr>
   <tr>
-    <td><code>server</code></td>
+    <td>server</td>
     <td>ZooKeeper server address.</td>
     <td><code>"127.0.0.1:2181"</code></td>
   </tr>
   <tr>
-    <td><code>size</code></td>
+    <td>size</td>
     <td>Semaphore size: the maximum number of nodes that will be able to run the block at the same time.</td>
     <td><code>nil</code></td>
   </tr>
   <tr>
-    <td><code>block</code></td>
+    <td>block</td>
     <td>The <em>recipe code</em> that will be run within the semaphore.</td>
     <td><code>nil</code></td>
   </tr>
   <tr>
-    <td><code>wait</code></td>
+    <td>wait</td>
     <td>This can be an integer to wait a maximum of seconds and raise a timeout exception if this time is exceeded. By default is set to <code>true</code>, which will wait infinitely.</td>
     <td><code>true</code></td>
   </tr>
