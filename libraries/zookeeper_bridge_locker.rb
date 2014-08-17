@@ -20,16 +20,16 @@ class Chef
 
       public
 
-      def shared_lock(path, wait, &block)
-        lock_wait_with_class(ZK::Locker::SharedLocker, path, wait, nil, block)
+      def shared_lock(path, wait, &blk)
+        lock_wait_with_class(ZK::Locker::SharedLocker, path, wait, nil, blk)
       end
 
-      def exclusive_lock(path, wait, &block)
-        lock_wait_with_class(ZK::Locker::ExclusiveLocker, path, wait, nil, block)
+      def exclusive_lock(path, wait, &blk)
+        lock_wait_with_class(ZK::Locker::ExclusiveLocker, path, wait, nil, blk)
       end
 
-      def semaphore(path, size, wait, &block)
-        lock_wait_with_class(ZK::Locker::Semaphore, path, wait, size, block)
+      def semaphore(path, size, wait, &blk)
+        lock_wait_with_class(ZK::Locker::Semaphore, path, wait, size, blk)
       end
     end # Locker
   end # ZookeeperBridge
