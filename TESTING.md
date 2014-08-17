@@ -14,6 +14,7 @@ Testing
 * `chefspec`
 * `test-kitchen`
 * `kitchen-vagrant`
+* `zk`
 
 You must have [VirtualBox](https://www.virtualbox.org/) and [Vagrant](http://www.vagrantup.com/) installed.
 
