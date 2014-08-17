@@ -13,6 +13,15 @@ class Chef
         end
       end
 
+      def satisfies_status?(path, status)
+        case status
+        when :created then @zk.exists?(path, watch: true)
+        when :deleted then !@zk.exists?(path, watch: true)
+        else
+          fail "#{__method__.to_s}: unknown status: #{status.inspect}"
+        end
+      end
+
       def subscribe_until_event(path, event_types)
         event_types_hs = event_types_hash(event_types)
         @zk.register(path) do |event|
@@ -20,28 +29,26 @@ class Chef
         end
       end
 
-      def subscribe_until_created(path)
+      def subscribe_until_status(path, status)
         @zk.register(path) do |event|
-          if event.node_created?
-            yield(:created)
+          if event.send("node_#{status.to_s}?")
+            yield(status)
           else
-            if @zk.exists?(event.path, watch: true)
-              yield(:created) # ooh! surprise! there it is!
+            if satisfies_status?(event.path, status)
+              yield(status) # ooh! surprise! the status is already correct
             end
           end
         end
       end
 
-      def subscribe_until_deleted(path)
-        @zk.register(path) do |event|
-          if event.node_deleted?
-            yield(:deleted)
-          else
-            unless @zk.exists?(event.path, watch:  true)
-              yield(:deleted) # ooh! surprise! it's gone!
-            end
-          end
-        end
+      def until_znode_status(path, status)
+        queue = Queue.new
+        ev_sub = subscribe_until_status(path, status) { |e| queue.enq(e) }
+        # set up the callback, but bail if we don't need to wait
+        return true if satisfies_status?(path, status)
+        queue.pop # block waiting for node creation
+      ensure
+        ev_sub.unsubscribe unless ev_sub.nil?
       end
 
       public
@@ -56,13 +63,7 @@ class Chef
       end
 
       def until_znode_created(path)
-        queue = Queue.new
-        ev_sub = subscribe_until_created(path) { |e| queue.enq(e) }
-        # set up the callback, but bail if we don't need to wait
-        return true if @zk.exists?(path, watch:  true)
-        queue.pop # block waiting for node creation
-      ensure
-        ev_sub.unsubscribe unless ev_sub.nil?
+        until_znode_status(path, :created)
       end
 
       def until_znode_changed(path)
@@ -70,13 +71,7 @@ class Chef
       end
 
       def until_znode_deleted(path)
-        queue = Queue.new
-        ev_sub = subscribe_until_deleted(path) { |e| queue.enq(e) }
-        # set up the callback, but bail if we don't need to wait
-        return true unless @zk.exists?(path, watch:  true)
-        queue.pop # block waiting for node deletion
-      ensure
-        ev_sub.unsubscribe unless ev_sub.nil?
+        until_znode_status(path, :deleted)
       end
     end # StatusLocker
   end # ZookeeperBridge
