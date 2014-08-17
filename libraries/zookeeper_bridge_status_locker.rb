@@ -18,7 +18,7 @@ class Chef
         when :created then @zk.exists?(path, watch: true)
         when :deleted then !@zk.exists?(path, watch: true)
         else
-          fail "#{__method__.to_s}: unknown status: #{status.inspect}"
+          fail "#{__method__}: unknown status: #{status.inspect}"
         end
       end
 
@@ -31,7 +31,7 @@ class Chef
 
       def subscribe_until_status(path, status)
         @zk.register(path) do |event|
-          if event.send("node_#{status.to_s}?")
+          if event.send("node_#{status}?")
             yield(status)
           else
             if satisfies_status?(event.path, status)
