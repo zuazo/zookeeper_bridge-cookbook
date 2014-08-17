@@ -41,17 +41,21 @@ class Chef
       end
     end
 
-    def path_to_name_and_root_node(path)
-      root_node = ::File.dirname(path)
-      root_node = nil if root_node == '.'
-      [root_node, ::File.basename(path)]
-    end
-
     public
 
     def initialize(server)
       Chef::ZookeeperBridge::Depends.load
       @zk = ZK.new(server)
+    end
+
+    # TODO: avoid #dirname & #basename to support non-unix platforms
+    def path_to_name_and_root_node(path)
+      path = path.gsub(/\/*$/, '')
+      result = []
+      result[0] = path[0] == '/' ? ::File.dirname(path) : nil
+      result[0] = nil if result[0] == '.'
+      result[1] = result[0].nil? ? path : ::File.basename(path)
+      result
     end
 
     def close
