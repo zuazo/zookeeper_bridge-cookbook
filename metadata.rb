@@ -20,11 +20,12 @@ depends 'build-essential', '~> 2.0'
 depends 'chef_handler'
 
 recipe 'zookeeper_bridge::default',
-       'Minimum recipe required to use the providers.'
+       'Recipe required before using the resources.'
 recipe 'zookeeper_bridge::chef_handler',
-       'Installs and configures chef-handler-zookeeper.'
+       'Installs and enables chef-handler-zookeeper.'
 recipe 'zookeeper_bridge::depends',
-       'Install some dependencies required by this cookbooks.'
+       'Install some dependencies required by this cookbooks. Used by the '\
+       'other recipes.'
 
 attribute 'zookeeper_bridge/server',
           display_name: 'zookeeper server',
