@@ -19,6 +19,7 @@
 
 require 'spec_helper'
 require 'zookeeper_bridge'
+require 'zookeeper_bridge_depends'
 
 describe Chef::ZookeeperBridge do
   let(:zkb) { described_class.new('127.0.0.1:2181') }
