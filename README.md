@@ -23,7 +23,7 @@ This cookbook is mainly used by calling the resources it provides. See their doc
 Requirements
 ============
 
-## Platform Requirements
+## Supported Platforms
 
 This cookbook has been tested on the following platforms:
 
@@ -36,12 +36,12 @@ This cookbook has been tested on the following platforms:
 
 Please, [let us know](https://github.com/onddo/zookeeper_bridge-cookbook/issues/new?title=I%20have%20used%20it%20successfully%20on%20...) if you use it successfully on any other platform.
 
-## Cookbook Requirements
+## Required Cookbooks
 
 * [build-essential](https://supermarket.getchef.com/cookbooks/build-essential) `~> 2.0`
 * [chef_handler](https://supermarket.getchef.com/cookbooks/chef_handler)
 
-## Application Requirements
+## Required Applications
 
 * Ruby `1.9.3` or higher.
 * `zk` ruby gem.
