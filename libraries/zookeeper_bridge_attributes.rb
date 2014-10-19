@@ -30,7 +30,7 @@ class Chef
         # TODO: test this hash merge properly
         attrs = force_encoding(attributes, encoding) unless encoding.nil?
         orig_attrs, ver = zk_read_hash(path, encoding, true)
-        if !key.nil?
+        if !key.nil? # TODO: use DeepMerge here
           attrs = orig_attrs[key].merge(attrs) if orig_attrs.key?(key)
         else
           attrs = orig_attrs.merge(attrs)
@@ -46,7 +46,7 @@ class Chef
           return false unless attrs.key?(key)
           attrs = attrs[key] unless key.nil?
         end
-        attributes.merge!(attrs)
+        Chef::Mixin::DeepMerge.hash_only_merge!(attributes, attrs)
         true
       rescue ZkHashFormatError
         false
