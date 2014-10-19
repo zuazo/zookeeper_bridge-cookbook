@@ -27,7 +27,7 @@ if defined?(ChefSpec)
     :zookeeper_bridge_wait,
     :zookeeper_bridge_wrlock
   ].each do |matcher|
-    if ChefSpec.respond_to?(:define_matche)
+    if ChefSpec.respond_to?(:define_matcher)
       # ChefSpec >= 4.1
       ChefSpec.define_matcher matcher
     elsif defined?(ChefSpec::Runner) &&
