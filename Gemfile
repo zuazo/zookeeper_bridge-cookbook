@@ -15,7 +15,7 @@ group :style do
 end
 
 group :unit do
-  gem 'chefspec', '~> 4.0'
+  gem 'chefspec', '~> 4.1'
   gem 'zk', '~> 1.9'
 end
 

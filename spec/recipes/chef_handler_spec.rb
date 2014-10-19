@@ -31,7 +31,7 @@ class FakeGemSpecification
 end
 
 describe 'zookeeper_bridge::chef_handler' do
-  let(:chef_run) { ChefSpec::Runner.new.converge(described_recipe) }
+  let(:chef_run) { ChefSpec::SoloRunner.new.converge(described_recipe) }
   before do
     if Gem::Specification.respond_to?('find_by_name')
       allow(Gem::Specification).to receive(:find_by_name)

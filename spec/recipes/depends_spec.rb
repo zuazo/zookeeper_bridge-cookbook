@@ -22,7 +22,7 @@ require 'spec_helper'
 describe 'zookeeper_bridge::depends' do
   let(:version) { '7.7.7' }
   let(:chef_run) do
-    ChefSpec::Runner.new do |node|
+    ChefSpec::SoloRunner.new do |node|
       node.set['zookeeper_bridge']['chef_handler']['version'] = version
     end.converge(described_recipe)
   end
