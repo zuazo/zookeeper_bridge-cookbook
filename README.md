@@ -49,28 +49,11 @@ Please, [let us know](https://github.com/onddo/zookeeper_bridge-cookbook/issues/
 Attributes
 ==========
 
-<table>
-  <tr>
-    <th>Attribute</th>
-    <th>Description</th>
-    <th>Default</th>
-  </tr>
-  <tr>
-    <td><code>node['zookeeper_bridge']['server']</code></td>
-    <td>ZooKeeper server address.</td>
-    <td><code>"127.0.0.1:2181"</code></td>
-  </tr>
-  <tr>
-    <td><code>node['zookeeper_bridge']['chef_handler']['version']</code></td>
-    <td><code>chef-handler-zookeeper</code> gem version to install.</td>
-    <td><code>nil</code> <em>(latest)</em></td>
-  </tr>
-  <tr>
-    <td><code>node['zookeeper_bridge']['chef_handler']['znode']</code></td>
-    <td><code>chef-handler-zookeeper</code> znode path. The path must be absolute.</td>
-    <td><code>"/chef/#{node.name}/status"</code></td>
-  </tr>
-</table>
+| Attribute                                             | Default                       | Description                       |
+|:------------------------------------------------------|:------------------------------|:----------------------------------|
+| `node['zookeeper_bridge']['server']`                  | `"127.0.0.1:2181"`            | ZooKeeper server address.
+| `node['zookeeper_bridge']['chef_handler']['version']` | `nil` *(latest)*              | `chef-handler-zookeeper` gem version to install.
+| `node['zookeeper_bridge']['chef_handler']['znode']`   | `"/chef/#{node.name}/status"` | `chef-handler-zookeeper` znode path. The path must be absolute.
 
 Recipes
 =======
@@ -130,33 +113,12 @@ Runs a [Read or Shared Lock](http://en.wikipedia.org/wiki/Readers%E2%80%93writer
 
 ### zookeeper_bridge_rdlock Parameters
 
-<table>
-  <tr>
-    <th>Parameter</th>
-    <th>Description</th>
-    <th>Default</th>
-  </tr>
-  <tr>
-    <td>path</td>
-    <td>Znode path. The path can be relative to <code>"/_zklocking"</code>.</td>
-    <td><em>name</em></td>
-  </tr>
-  <tr>
-    <td>server</td>
-    <td>ZooKeeper server address.</td>
-    <td><code>node['zookeeper_bridge']['server']</code></td>
-  </tr>
-  <tr>
-    <td>wait</td>
-    <td>This can be an integer to wait a maximum of seconds and raise a timeout exception if this time is exceeded. By default is set to <code>true</code>, which will wait infinitely.</td>
-    <td><code>true</code></td>
-  </tr>
-  <tr>
-    <td>block</td>
-    <td>The <em>recipe code</em> that will be run within the lock.</td>
-    <td><code>nil</code></td>
-  </tr>
-</table>
+| Parameter | Default                              | Description                       |
+|:----------|:-------------------------------------|:----------------------------------|
+| path      | *name*                               | Znode path. The path can be relative to `"/_zklocking"`.
+| server    | `node['zookeeper_bridge']['server']` | ZooKeeper server address.
+| wait      | `true`                               | This can be an integer to wait a maximum of seconds and raise a timeout exception if this time is exceeded. By default is set to `true`, which will wait infinitely.
+| block     | `nil`                                | The *recipe code* that will be run within the lock.
 
 ### zookeeper_bridge_rdlock Examples
 
@@ -192,33 +154,12 @@ Runs a [Write or Exclusive Lock](http://en.wikipedia.org/wiki/Readers%E2%80%93wr
 
 ### zookeeper_bridge_wrlock Parameters
 
-<table>
-  <tr>
-    <th>Parameter</th>
-    <th>Description</th>
-    <th>Default</th>
-  </tr>
-  <tr>
-    <td>path</td>
-    <td>Znode path. The path can be relative to <code>"/_zklocking"</code>.</td>
-    <td><em>name</em></td>
-  </tr>
-  <tr>
-    <td>server</td>
-    <td>ZooKeeper server address.</td>
-    <td><code>node['zookeeper_bridge']['server']</code></td>
-  </tr>
-  <tr>
-    <td>wait</td>
-    <td>This can be an integer to wait a maximum of seconds and raise a timeout exception if this time is exceeded. By default is set to <code>true</code>, which will wait infinitely.</td>
-    <td><code>true</code></td>
-  </tr>
-  <tr>
-    <td>block</td>
-    <td>The <em>recipe code</em> that will be run within the lock.</td>
-    <td><code>nil</code></td>
-  </tr>
-</table>
+| Parameter | Default                              | Description                       |
+|:----------|:-------------------------------------|:----------------------------------|
+| path      | *name*                               | Znode path. The path can be relative to `"/_zklocking"`.
+| server    | `node['zookeeper_bridge']['server']` | ZooKeeper server address.
+| wait      | `true`                               | This can be an integer to wait a maximum of seconds and raise a timeout exception if this time is exceeded. By default is set to `true`, which will wait infinitely.
+| block     | `nil`                                | The *recipe code* that will be run within the lock.
 
 ### zookeeper_bridge_wrlock Examples
 
@@ -244,38 +185,13 @@ Runs a [Semaphore](http://en.wikipedia.org/wiki/Semaphore_%28programming%29) ins
 
 ### zookeeper_bridge_sem Parameters
 
-<table>
-  <tr>
-    <th>Parameter</th>
-    <th>Description</th>
-    <th>Default</th>
-  </tr>
-  <tr>
-    <td>path</td>
-    <td>Znode path. The path can be relative to <code>"/_zksemaphore"</code>.</td>
-    <td><em>name</em></td>
-  </tr>
-  <tr>
-    <td>server</td>
-    <td>ZooKeeper server address.</td>
-    <td><code>node['zookeeper_bridge']['server']</code></td>
-  </tr>
-  <tr>
-    <td>size</td>
-    <td>Semaphore size: the maximum number of nodes that will be able to run the block at the same time.</td>
-    <td><code>nil</code></td>
-  </tr>
-  <tr>
-    <td>block</td>
-    <td>The <em>recipe code</em> that will be run within the semaphore.</td>
-    <td><code>nil</code></td>
-  </tr>
-  <tr>
-    <td>wait</td>
-    <td>This can be an integer to wait a maximum of seconds and raise a timeout exception if this time is exceeded. By default is set to <code>true</code>, which will wait infinitely.</td>
-    <td><code>true</code></td>
-  </tr>
-</table>
+| Parameter | Default                              | Description                       |
+|:----------|:-------------------------------------|:----------------------------------|
+| path      | *name*                               | Znode path. The path can be relative to `"/_zksemaphore"`.
+| server    | `node['zookeeper_bridge']['server']` | ZooKeeper server address.
+| size      | `nil`                                | Semaphore size: the maximum number of nodes that will be able to run the block at the same time.
+| block     | `nil`                                | The *recipe code* that will be run within the semaphore.
+| wait      | `true`                               | This can be an integer to wait a maximum of seconds and raise a timeout exception if this time is exceeded. By default is set to `true`, which will wait infinitely.
 
 ### zookeeper_bridge_sem Examples
 
@@ -303,38 +219,13 @@ Used to read or write Chef Node attributes from or to ZooKeeper znode paths. The
 
 ### zookeeper_bridge_attrs Parameters
 
-<table>
-  <tr>
-    <th>Parameter</th>
-    <th>Description</th>
-    <th>Default</th>
-  </tr>
-  <tr>
-    <td>path</td>
-    <td>Znode path. The path must be absolute.</td>
-    <td><em>name</em></td>
-  </tr>
-  <tr>
-    <td>server</td>
-    <td>ZooKeeper server address.</td>
-    <td><code>node['zookeeper_bridge']['server']</code></td>
-  </tr>
-  <tr>
-    <td>attribute</td>
-    <td>Node attribute object or a Ruby Hash. This should be something like <code>node['foo']</code> for <strong>reading</strong> and <code>node.normal['foo']</code> for <strong>writing</strong>.</code></td>
-    <td><code>nil</code></td>
-  </tr>
-  <tr>
-    <td>key</td>
-    <td>JSON sub-key to use for storing the attributes. This key is merged with the other JSON keys that currently exists in the znode. By default no key is used: attributes are at a root level JSON object.</td>
-    <td><code>nil</code></td>
-  </tr>
-  <tr>
-    <td>force_encoding</td>
-    <td>Force character encoding. For example: <code>"UTF-8"</code>.</td>
-    <td><code>nil</code></td>
-  </tr>
-</table>
+| Parameter      | Default                              | Description                       |
+|:---------------|:-------------------------------------|:----------------------------------|
+| path           | *name*                               | Znode path. The path must be absolute.
+| server         | `node['zookeeper_bridge']['server']` | ZooKeeper server address.
+| attribute      | `nil`                                | Node attribute object or a Ruby Hash. This should be something like `node['foo']` for **reading** and `node.normal['foo']` for **writing**.
+| key            | `nil`                                | JSON sub-key to use for storing the attributes. This key is merged with the other JSON keys that currently exists in the znode. By default no key is used: attributes are at a root level JSON object.
+| force_encoding | `nil` | Force character encoding. For example: `"UTF-8"`.
 
 ### zookeeper_bridge_attrs Examples
 
@@ -427,33 +318,12 @@ Waits until a given ZooKeeper znode path exists, does not exist or changes its s
 
 ### zookeeper_bridge_wait Parameters
 
-<table>
-  <tr>
-    <th>Parameter</th>
-    <th>Description</th>
-    <th>Default</th>
-  </tr>
-  <tr>
-    <td>path</td>
-    <td>Znode path. The path must be absolute.</td>
-    <td><em>name</em></td>
-  </tr>
-  <tr>
-    <td>server</td>
-    <td>ZooKeeper server address.</td>
-    <td><code>node['zookeeper_bridge']['server']</code></td>
-  </tr>
-  <tr>
-    <td>status</td>
-    <td>Wait until znode has this status. Possible values: <code>:any</code>, <code>:created</code> or <code>:deleted.</code>. <code>:any</code> means to ignore the status, normally used when the <code>event</code> parameter below is set.</td>
-    <td><code>:any</code></td>
-  </tr>
-  <tr>
-    <td>event</td>
-    <td>Wait until specific znode event occurs. Possible values: <code>:none</code>, <code>:created</code>, <code>:deleted.</code>, <code>:changed</code>, <code>:child</code> or an array of multiple values. <code>:none</code> means to ignore the events, normally used when the <code>status</code> parameter is set. <code>:child</code> is for znode child events.</td>
-    <td><code>:none</code></td>
-  </tr>
-</table>
+| Parameter | Default                              | Description                       |
+|:----------|:-------------------------------------|:----------------------------------|
+| path      | *name*                               | Znode path. The path must be absolute.
+| server    | `node['zookeeper_bridge']['server']` | ZooKeeper server address.
+| status    | `:any`                               | Wait until znode has this status. Possible values: `:any`, `:created` or `:deleted.`. `:any` means to ignore the status, normally used when the `event` parameter below is set.
+| event     | `:none`                              | Wait until specific znode event occurs. Possible values: `:none`, `:created`, `:deleted.`, `:changed`, `:child` or an array of multiple values. `:none` means to ignore the events, normally used when the `status` parameter is set. `:child` is for znode child events.
 
 ### zookeeper_bridge_wait Examples
 
@@ -512,33 +382,12 @@ Remember that this script has some limitations, so use it with caution.
 
 ### zookeeper_bridge_cli Parameters
 
-<table>
-  <tr>
-    <th>Parameter</th>
-    <th>Description</th>
-    <th>Default</th>
-  </tr>
-  <tr>
-    <td>command</td>
-    <td>ZooKeeper <code>zkCli.sh</code> command.</td>
-    <td><em>name</em></td>
-  </tr>
-  <tr>
-    <td>base_path</td>
-    <td>ZooKeeper installation path.</td>
-    <td><code>"#{node['zookeeper']['install_dir']}/zookeeper-#{node['zookeeper']['version']}"</code></td>
-  </tr>
-  <tr>
-    <td>sleep</td>
-    <td>Time to sleep in seconds before the command is run (type <code>Float</code>).</td>
-    <td><code>nil</code></td>
-  </tr>
-  <tr>
-    <td>background</td>
-    <td>Whether to run the command in background.</td>
-    <td><code>false</code></td>
-  </tr>
-</table>
+| Parameter  | Default                              | Description                       |
+|:-----------|:-------------------------------------|:----------------------------------|
+| command    | *name*                               | ZooKeeper `zkCli.sh` command.
+| base_path  | *calculated*                         | ZooKeeper installation path.
+| sleep      | `nil`                                | Time to sleep in seconds before the command is run (type `Float`).
+| background | `false`                              | Whether to run the command in background.
 
 ### zookeeper_bridge_cli Examples
 
