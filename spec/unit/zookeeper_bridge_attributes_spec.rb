@@ -24,7 +24,7 @@ require 'zookeeper_bridge_depends'
 require 'zookeeper_bridge_attributes'
 
 describe Chef::ZookeeperBridge::Attributes do
-  let(:subject) { described_class.new('127.0.0.1:2181') }
+  let(:zkba) { described_class.new('127.0.0.1:2181') }
   before do
     allow(ZK).to receive(:new).and_return('ZK')
   end
@@ -34,15 +34,15 @@ describe Chef::ZookeeperBridge::Attributes do
     it 'should merge without errors' do
       attr = { 'banana' => { 'apple' => 'orange' } }
       read = { 'dog' => { 'cow' => 'snake' } }
-      allow(subject).to receive(:zk_read_hash).and_return(read)
-      expect(subject.read('/path', attr)).to eq(true)
+      allow(zkba).to receive(:zk_read_hash).and_return(read)
+      expect(zkba.read('/path', attr)).to eq(true)
     end
 
     it 'should merge non-conflicting hashes' do
       attr = { 'banana' => { 'apple' => 'orange' } }
       read = { 'dog' => { 'cow' => 'snake' } }
-      allow(subject).to receive(:zk_read_hash).and_return(read)
-      subject.read('/path', attr)
+      allow(zkba).to receive(:zk_read_hash).and_return(read)
+      zkba.read('/path', attr)
       expect(attr).to eq(
         'banana' => { 'apple' => 'orange' },
         'dog' => { 'cow' => 'snake' }
@@ -52,8 +52,8 @@ describe Chef::ZookeeperBridge::Attributes do
     it 'should merge conflicting hashes' do
       attr = { 'banana' => { 'apple' => 'orange' } }
       read = { 'banana' => { 'babaco' => 'canistel' } }
-      allow(subject).to receive(:zk_read_hash).and_return(read)
-      subject.read('/path', attr)
+      allow(zkba).to receive(:zk_read_hash).and_return(read)
+      zkba.read('/path', attr)
       expect(attr).to eq(
         'banana' => {
           'apple' => 'orange',
@@ -65,8 +65,8 @@ describe Chef::ZookeeperBridge::Attributes do
     it 'read attributes should have higher privilege' do
       attr = { 'banana' => { 'apple' => 'orange' } }
       read = { 'banana' => { 'apple' => 'canistel' } }
-      allow(subject).to receive(:zk_read_hash).and_return(read)
-      subject.read('/path', attr)
+      allow(zkba).to receive(:zk_read_hash).and_return(read)
+      zkba.read('/path', attr)
       expect(attr).to eq(
         'banana' => { 'apple' => 'canistel' }
       )
