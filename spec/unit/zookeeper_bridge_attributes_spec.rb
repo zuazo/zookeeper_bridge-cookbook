@@ -19,10 +19,12 @@
 
 require 'spec_helper'
 require 'zk'
+require 'zookeeper_bridge'
+require 'zookeeper_bridge_depends'
 require 'zookeeper_bridge_attributes'
 
 describe Chef::ZookeeperBridge::Attributes do
-  let(:zkb) { described_class.new('127.0.0.1:2181') }
+  let(:subject) { described_class.new('127.0.0.1:2181') }
   before do
     allow(ZK).to receive(:new).and_return('ZK')
   end
