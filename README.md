@@ -51,7 +51,7 @@ Attributes
 
 | Attribute                                             | Default                       | Description                       |
 |:------------------------------------------------------|:------------------------------|:----------------------------------|
-| `node['zookeeper_bridge']['server']`                  | `"127.0.0.1:2181"`            | ZooKeeper server address.
+| `node['zookeeper_bridge']['server']`                  | `'127.0.0.1:2181'`            | ZooKeeper server address.
 | `node['zookeeper_bridge']['chef_handler']['version']` | `nil` *(latest)*              | `chef-handler-zookeeper` gem version to install.
 | `node['zookeeper_bridge']['chef_handler']['znode']`   | `"/chef/#{node.name}/status"` | `chef-handler-zookeeper` znode path. The path must be absolute.
 
@@ -115,7 +115,7 @@ Runs a [Read or Shared Lock](http://en.wikipedia.org/wiki/Readers%E2%80%93writer
 
 | Parameter | Default                              | Description                       |
 |:----------|:-------------------------------------|:----------------------------------|
-| path      | *name*                               | Znode path. The path can be relative to `"/_zklocking"`.
+| path      | *name*                               | Znode path. The path can be relative to `'/_zklocking'`.
 | server    | `node['zookeeper_bridge']['server']` | ZooKeeper server address.
 | wait      | `true`                               | This can be an integer to wait a maximum of seconds and raise a timeout exception if this time is exceeded. By default is set to `true`, which will wait infinitely.
 | block     | `nil`                                | The *recipe code* that will be run within the lock.
@@ -156,7 +156,7 @@ Runs a [Write or Exclusive Lock](http://en.wikipedia.org/wiki/Readers%E2%80%93wr
 
 | Parameter | Default                              | Description                       |
 |:----------|:-------------------------------------|:----------------------------------|
-| path      | *name*                               | Znode path. The path can be relative to `"/_zklocking"`.
+| path      | *name*                               | Znode path. The path can be relative to `'/_zklocking'`.
 | server    | `node['zookeeper_bridge']['server']` | ZooKeeper server address.
 | wait      | `true`                               | This can be an integer to wait a maximum of seconds and raise a timeout exception if this time is exceeded. By default is set to `true`, which will wait infinitely.
 | block     | `nil`                                | The *recipe code* that will be run within the lock.
@@ -187,7 +187,7 @@ Runs a [Semaphore](http://en.wikipedia.org/wiki/Semaphore_%28programming%29) ins
 
 | Parameter | Default                              | Description                       |
 |:----------|:-------------------------------------|:----------------------------------|
-| path      | *name*                               | Znode path. The path can be relative to `"/_zksemaphore"`.
+| path      | *name*                               | Znode path. The path can be relative to `'/_zksemaphore'`.
 | server    | `node['zookeeper_bridge']['server']` | ZooKeeper server address.
 | size      | `nil`                                | Semaphore size: the maximum number of nodes that will be able to run the block at the same time.
 | block     | `nil`                                | The *recipe code* that will be run within the semaphore.
@@ -225,7 +225,7 @@ Used to read or write Chef Node attributes from or to ZooKeeper znode paths. The
 | server         | `node['zookeeper_bridge']['server']` | ZooKeeper server address.
 | attribute      | `nil`                                | Node attribute object or a Ruby Hash. This should be something like `node['foo']` for **reading** and `node.normal['foo']` for **writing**.
 | key            | `nil`                                | JSON sub-key to use for storing the attributes. This key is merged with the other JSON keys that currently exists in the znode. By default no key is used: attributes are at a root level JSON object.
-| force_encoding | `nil` | Force character encoding. For example: `"UTF-8"`.
+| force_encoding | `nil` | Force character encoding. For example: `'UTF-8'`.
 
 ### zookeeper_bridge_attrs Examples
 
