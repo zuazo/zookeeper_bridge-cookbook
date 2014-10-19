@@ -340,7 +340,7 @@ Used to read or write Chef Node attributes from or to ZooKeeper znode paths. The
 
 #### Reading All Node Attributes
 
-The znode to read attributes from must exist before reading it. For writting, at least the parent znode must exist:
+The znode to read attributes from must exist before reading it. For writing, at least the parent znode must exist:
 
     $ ./zkCli.sh
     [zk: localhost:2181(CONNECTED) 0] create /chef {}
@@ -457,7 +457,7 @@ Waits until a given ZooKeeper znode path exists, does not exist or changes its s
 
 ### zookeeper_bridge_wait Examples
 
-Wait until host znode is created (at compile time, to avoid compilling the next resources):
+Wait until host znode is created (at compile time, to avoid compiling the next resources):
 
 ```ruby
 zookeeper_bridge_wait "/chef/#{node.name}" do
@@ -502,7 +502,7 @@ end
 
 ## zookeeper_bridge_cli[path]
 
-Runs a ZooKeeper command using the `zkCli.sh` script. This resouce should be run from the ZooKeeper server node, because `zkCli.sh` connects to *localhost* (connecting to remote server is not supported yet).
+Runs a ZooKeeper command using the `zkCli.sh` script. This resource should be run from the ZooKeeper server node, because `zkCli.sh` connects to *localhost* (connecting to remote server is not supported yet).
 
 Remember that this script has some limitations, so use it with caution.
 
