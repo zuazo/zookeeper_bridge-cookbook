@@ -23,7 +23,7 @@ This cookbook is mainly used by calling the resources it provides. See their doc
 Requirements
 ============
 
-## Platform Requirements
+## Supported Platforms
 
 This cookbook has been tested on the following platforms:
 
@@ -36,14 +36,14 @@ This cookbook has been tested on the following platforms:
 
 Please, [let us know](https://github.com/onddo/zookeeper_bridge-cookbook/issues/new?title=I%20have%20used%20it%20successfully%20on%20...) if you use it successfully on any other platform.
 
-## Cookbook Requirements
+## Required Cookbooks
 
 * [build-essential](https://supermarket.getchef.com/cookbooks/build-essential) `~> 2.0`
 * [chef_handler](https://supermarket.getchef.com/cookbooks/chef_handler)
 
-## Application Requirements
+## Required Applications
 
-* Ruby 1.9.3 or higher.
+* Ruby `1.9.3` or higher.
 * `zk` ruby gem.
 
 Attributes
@@ -67,8 +67,8 @@ Attributes
   </tr>
   <tr>
     <td><code>node['zookeeper_bridge']['chef_handler']['znode']</code></td>
-    <td><code>chef-handler-zookeeper</code> znode path.</td>
-    <td><code>"/chef/#{node['fqdn']}/status"</code></td>
+    <td><code>chef-handler-zookeeper</code> znode path. The path must be absolute.</td>
+    <td><code>"/chef/#{node.name}/status"</code></td>
   </tr>
 </table>
 
@@ -77,15 +77,45 @@ Recipes
 
 ## zookeeper_bridge::default
 
-Minimum recipe required to use the providers.
+Recipe required before using the resources.
 
 ## zookeeper_bridge::chef_handler
 
-Installs and configures `chef-handler-zookeeper` gem.
+Installs and enables [`chef-handler-zookeeper`](http://onddo.github.io/chef-handler-zookeeper/) gem.
+
+### zookeeper_bridge::chef_handler Example
+
+The `node['zookeeper_bridge']['chef_handler']['znode']` path must exist before calling this recipe:
+
+    $ ./zkCli.sh
+    [zk: localhost:2181(CONNECTED) 0] create /chef {}
+    [zk: localhost:2181(CONNECTED) 1] create /chef/server1.example.com {}
+    [zk: localhost:2181(CONNECTED) 2] create /chef/server1.example.com/status {}
+
+Or using the recipe itself:
+
+```ruby
+# We set the ZooKeeper server address
+node.default['zookeeper_bridge']['server'] = 'zk.example.com'
+
+# zookeeper_bridge_cli resource should ignore cli errors if they already exist
+zookeeper_bridge_cli 'create /chef {}'
+zookeeper_bridge_cli "create /chef/#{node.name} {}"
+zookeeper_bridge_cli "create /chef/#{node.name}/status {}"
+```
+
+This is because the [`chef-handler-zookeeper` requires that the znode exists](http://onddo.github.io/chef-handler-zookeeper/#handler-configuration-options).
+
+Now we can install and enable the handler:
+
+```ruby
+node.default['zookeeper_bridge']['chef_handler']['znode'] = "/chef/#{node.name}/status"
+include_recipe 'zookeeper_bridge::chef_handler'
+```
 
 ## zookeeper_bridge::depends
 
-Install some dependencies required by this cookbook.
+Install some dependencies required by this cookbook. Used by the other recipes.
 
 Resources
 =========
@@ -94,11 +124,11 @@ Resources
 
 Runs a [Read or Shared Lock](http://en.wikipedia.org/wiki/Readers%E2%80%93writer_lock) inside ZooKeeper. This resource is intended to be used together with the `zookeeper_bridge_wrlock` resource.
 
-### zookeeper_bridge_rdlock actions
+### zookeeper_bridge_rdlock Actions
 
 * `run`
 
-### zookeeper_bridge_rdlock parameters
+### zookeeper_bridge_rdlock Parameters
 
 <table>
   <tr>
@@ -108,27 +138,27 @@ Runs a [Read or Shared Lock](http://en.wikipedia.org/wiki/Readers%E2%80%93writer
   </tr>
   <tr>
     <td>path</td>
-    <td>Znode path.</td>
+    <td>Znode path. The path can be relative to <code>"/_zklocking"</code>.</td>
     <td><em>name</em></td>
   </tr>
   <tr>
-    <td><code>server</code></td>
+    <td>server</td>
     <td>ZooKeeper server address.</td>
-    <td><code>"127.0.0.1:2181"</code></td>
+    <td><code>node['zookeeper_bridge']['server']</code></td>
   </tr>
   <tr>
-    <td><code>wait</code></td>
+    <td>wait</td>
     <td>This can be an integer to wait a maximum of seconds and raise a timeout exception if this time is exceeded. By default is set to <code>true</code>, which will wait infinitely.</td>
     <td><code>true</code></td>
   </tr>
   <tr>
-    <td><code>block</code></td>
+    <td>block</td>
     <td>The <em>recipe code</em> that will be run within the lock.</td>
     <td><code>nil</code></td>
   </tr>
 </table>
 
-### zookeeper_bridge_rdlock examples
+### zookeeper_bridge_rdlock Examples
 
 ```ruby
 zookeeper_bridge_rdlock 'lock1' do
@@ -140,7 +170,7 @@ zookeeper_bridge_rdlock 'lock1' do
 end
 ```
 
-Then you can use an exclusive lock from another node:
+Then we can use an exclusive lock from another node:
 
 ```ruby
 zookeeper_bridge_wrlock 'lock1' do
@@ -156,11 +186,11 @@ end
 
 Runs a [Write or Exclusive Lock](http://en.wikipedia.org/wiki/Readers%E2%80%93writer_lock) inside ZooKeeper. This resource is intended to be used together with the `zookeeper_bridge_rdlock` resource.
 
-### zookeeper_bridge_wrlock actions
+### zookeeper_bridge_wrlock Actions
 
 * `run`
 
-### zookeeper_bridge_wrlock parameters
+### zookeeper_bridge_wrlock Parameters
 
 <table>
   <tr>
@@ -170,27 +200,27 @@ Runs a [Write or Exclusive Lock](http://en.wikipedia.org/wiki/Readers%E2%80%93wr
   </tr>
   <tr>
     <td>path</td>
-    <td>Znode path.</td>
+    <td>Znode path. The path can be relative to <code>"/_zklocking"</code>.</td>
     <td><em>name</em></td>
   </tr>
   <tr>
-    <td><code>server</code></td>
+    <td>server</td>
     <td>ZooKeeper server address.</td>
-    <td><code>"127.0.0.1:2181"</code></td>
+    <td><code>node['zookeeper_bridge']['server']</code></td>
   </tr>
   <tr>
-    <td><code>wait</code></td>
+    <td>wait</td>
     <td>This can be an integer to wait a maximum of seconds and raise a timeout exception if this time is exceeded. By default is set to <code>true</code>, which will wait infinitely.</td>
     <td><code>true</code></td>
   </tr>
   <tr>
-    <td><code>block</code></td>
+    <td>block</td>
     <td>The <em>recipe code</em> that will be run within the lock.</td>
     <td><code>nil</code></td>
   </tr>
 </table>
 
-### zookeeper_bridge_wrlock examples
+### zookeeper_bridge_wrlock Examples
 
 The following block will only be running by a maximum of one node at a particular instant:
 
@@ -208,11 +238,11 @@ end
 
 Runs a [Semaphore](http://en.wikipedia.org/wiki/Semaphore_%28programming%29) inside ZooKeeper.
 
-### zookeeper_bridge_sem actions
+### zookeeper_bridge_sem Actions
 
 * `run`
 
-### zookeeper_bridge_sem parameters
+### zookeeper_bridge_sem Parameters
 
 <table>
   <tr>
@@ -222,32 +252,32 @@ Runs a [Semaphore](http://en.wikipedia.org/wiki/Semaphore_%28programming%29) ins
   </tr>
   <tr>
     <td>path</td>
-    <td>Znode path.</td>
+    <td>Znode path. The path can be relative to <code>"/_zksemaphore"</code>.</td>
     <td><em>name</em></td>
   </tr>
   <tr>
-    <td><code>server</code></td>
+    <td>server</td>
     <td>ZooKeeper server address.</td>
-    <td><code>"127.0.0.1:2181"</code></td>
+    <td><code>node['zookeeper_bridge']['server']</code></td>
   </tr>
   <tr>
-    <td><code>size</code></td>
+    <td>size</td>
     <td>Semaphore size: the maximum number of nodes that will be able to run the block at the same time.</td>
     <td><code>nil</code></td>
   </tr>
   <tr>
-    <td><code>block</code></td>
+    <td>block</td>
     <td>The <em>recipe code</em> that will be run within the semaphore.</td>
     <td><code>nil</code></td>
   </tr>
   <tr>
-    <td><code>wait</code></td>
+    <td>wait</td>
     <td>This can be an integer to wait a maximum of seconds and raise a timeout exception if this time is exceeded. By default is set to <code>true</code>, which will wait infinitely.</td>
     <td><code>true</code></td>
   </tr>
 </table>
 
-### zookeeper_bridge_sem examples
+### zookeeper_bridge_sem Examples
 
 You can call this from multiple nodes. The code within the following block will be running by a maximum of three nodes at the same time:
 
@@ -266,12 +296,12 @@ end
 
 Used to read or write Chef Node attributes from or to ZooKeeper znode paths. The attributes are saved into the znode using *JSON* format.
 
-### zookeeper_bridge_attrs actions
+### zookeeper_bridge_attrs Actions
 
 * `read`: Read Node attributes from a znode.
 * `write`: Write Node attributes to a znode.
 
-### zookeeper_bridge_attrs parameters
+### zookeeper_bridge_attrs Parameters
 
 <table>
   <tr>
@@ -281,7 +311,7 @@ Used to read or write Chef Node attributes from or to ZooKeeper znode paths. The
   </tr>
   <tr>
     <td>path</td>
-    <td>Znode path.</td>
+    <td>Znode path. The path must be absolute.</td>
     <td><em>name</em></td>
   </tr>
   <tr>
@@ -306,19 +336,42 @@ Used to read or write Chef Node attributes from or to ZooKeeper znode paths. The
   </tr>
 </table>
 
-### zookeeper_bridge_attrs examples
+### zookeeper_bridge_attrs Examples
 
-Reading and writing all node attributes from and to ZooKeeper:
+#### Reading All Node Attributes
+
+The znode to read attributes from must exist before reading it. For writting, at least the parent znode must exist:
+
+    $ ./zkCli.sh
+    [zk: localhost:2181(CONNECTED) 0] create /chef {}
+    [zk: localhost:2181(CONNECTED) 1] create /chef/server1.example.com {}
+    [zk: localhost:2181(CONNECTED) 2] create /chef/server1.example.com/read_attributes {"attr1":"value1"}
+
+We can also create them from a recipe using `zookeeper_bridge_cli`:
 
 ```ruby
-zookeeper_bridge_attrs "/chef/#{node['fqdn']}/read_attributes" do
+# We set the ZooKeeper server address
+node.default['zookeeper_bridge']['server'] = 'zk.example.com'
+
+# zookeeper_bridge_cli resource should ignore cli errors if they already exist
+zookeeper_bridge_cli('create /chef {}').run_action(:run)
+zookeeper_bridge_cli("create /chef/#{node.name} {}").run_action(:run)
+# zkCli.sh does not support spaces in the data:
+zookeeper_bridge_cli("create /chef/#{node.name}/read_attributes {\"attr1\":\"value1\"}")
+  .run_action(:run)
+```
+
+Now we can read and write all node attributes from and to ZooKeeper:
+
+```ruby
+zookeeper_bridge_attrs "/chef/#{node.name}/read_attributes" do
   attribute node.normal
   action :nothing
 end.run_action(:read)
 
 # [...]
 
-zookeeper_bridge_attrs "/chef/#{node['fqdn']}/write_attributes" do
+zookeeper_bridge_attrs "/chef/#{node.name}/write_attributes" do
   attribute node.attributes
   action :write
 end
@@ -326,18 +379,39 @@ end
 
 **Note:** You need to understand how [compile and converge phases work on Chef Run](http://docs.opscode.com/essentials_nodes_chef_run.html) to know when to use `#run_action`.
 
-Reading and writing Apache attributes:
+### Reading and Writing Apache Cookbook Attributes
+
+As in the previous example, we create the necessary znodes:
+
+    $ ./zkCli.sh
+    [zk: localhost:2181(CONNECTED) 0] create /chef {}
+    [zk: localhost:2181(CONNECTED) 1] create /chef/server1.example.com {}
+    [zk: localhost:2181(CONNECTED) 2] create /chef/server1.example.com/apache_attributes {}
+
+We can also create them from a recipe using `zookeeper_bridge_cli`:
+
+```ruby
+# We set the ZooKeeper server address
+node.default['zookeeper_bridge']['server'] = 'zk.example.com'
+
+# zookeeper_bridge_cli resource should ignore cli errors if they already exist
+zookeeper_bridge_cli 'create /chef {}'
+zookeeper_bridge_cli "create /chef/#{node.name} {}"
+zookeeper_bridge_cli "create /chef/#{node.name}/apache_attributes {}"
+```
+
+Now we can read and write apache attributes:
 
 ```ruby
 # We use override in this case to overwrite default and normal values, why not?
-zookeeper_bridge_attrs "/chef/#{node['fqdn']}/apache_attributes" do
+zookeeper_bridge_attrs "/chef/#{node.name}/apache_attributes" do
   attribute node.override['apache']
   action :nothing
-end.run_action(:read)
+end
 
 # [...]
 
-zookeeper_bridge_attrs "/chef/#{node['fqdn']}/apache_attributes" do
+zookeeper_bridge_attrs "/chef/#{node.name}/apache_attributes" do
   attribute node['apache']
   action :write
 end
@@ -345,13 +419,13 @@ end
 
 ## zookeeper_bridge_wait[path]
 
-Waits until a given ZooKeeper znode path exists, not exists or changes its state.
+Waits until a given ZooKeeper znode path exists, does not exist or changes its state.
 
-### zookeeper_bridge_wait actions
+### zookeeper_bridge_wait Actions
 
 * `run`
 
-### zookeeper_bridge_wait parameters
+### zookeeper_bridge_wait Parameters
 
 <table>
   <tr>
@@ -361,7 +435,7 @@ Waits until a given ZooKeeper znode path exists, not exists or changes its state
   </tr>
   <tr>
     <td>path</td>
-    <td>Znode path.</td>
+    <td>Znode path. The path must be absolute.</td>
     <td><em>name</em></td>
   </tr>
   <tr>
@@ -381,12 +455,12 @@ Waits until a given ZooKeeper znode path exists, not exists or changes its state
   </tr>
 </table>
 
-### zookeeper_bridge_wait examples
+### zookeeper_bridge_wait Examples
 
 Wait until host znode is created (at compile time, to avoid compilling the next resources):
 
 ```ruby
-zookeeper_bridge_wait "/chef/#{node['fqdn']}" do
+zookeeper_bridge_wait "/chef/#{node.name}" do
   status :created
   event :none
   action :nothing
@@ -396,13 +470,13 @@ end.run_action(:run)
 Wait until the attributes exists before reading them:
 
 ```ruby
-zookeeper_bridge_wait "/chef/#{node['fqdn']}/attributes" do
+zookeeper_bridge_wait "/chef/#{node.name}/attributes" do
   status :created
   event :none
   action :nothing
 end.run_action(:run)
 
-zookeeper_bridge_attrs "/chef/#{node['fqdn']}/attributes" do
+zookeeper_bridge_attrs "/chef/#{node.name}/attributes" do
   attribute node.normal
   action :nothing
 end.run_action(:read)
@@ -411,7 +485,7 @@ end.run_action(:read)
 Continue the *Chef Run convergence* only when the *stop znode* does not exist:
 
 ```ruby
-zookeeper_bridge_wait "/chef/#{node['fqdn']}/chef_stop" do
+zookeeper_bridge_wait "/chef/#{node.name}/chef_stop" do
   status :deleted
   event :none
 end
@@ -420,7 +494,7 @@ end
 Continue the *Chef Run convergence* only when the *continue znode* is updated:
 
 ```ruby
-zookeeper_bridge_wait "/chef/#{node['fqdn']}/chef_continue" do
+zookeeper_bridge_wait "/chef/#{node.name}/chef_continue" do
   status :any
   event :changed
 end
@@ -428,13 +502,15 @@ end
 
 ## zookeeper_bridge_cli[path]
 
-Runs a ZooKeeper command using the `zkCli.sh` script. Remember that this script has some limitations.
+Runs a ZooKeeper command using the `zkCli.sh` script. This resouce should be run from the ZooKeeper server node, because `zkCli.sh` connects to *localhost* (connecting to remote server is not supported yet).
 
-### zookeeper_bridge_cli actions
+Remember that this script has some limitations, so use it with caution.
+
+### zookeeper_bridge_cli Actions
 
 * `run`: Runs a command.
 
-### zookeeper_bridge_cli parameters
+### zookeeper_bridge_cli Parameters
 
 <table>
   <tr>
@@ -464,7 +540,7 @@ Runs a ZooKeeper command using the `zkCli.sh` script. Remember that this script 
   </tr>
 </table>
 
-### zookeeper_bridge_cli examples
+### zookeeper_bridge_cli Examples
 
 ```ruby
 zookeeper_bridge_cli 'create /test some_random_data'

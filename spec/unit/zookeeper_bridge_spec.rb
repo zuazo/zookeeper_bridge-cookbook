@@ -17,28 +17,25 @@
 # limitations under the License.
 #
 
-$LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'libraries'))
+require 'spec_helper'
+require 'zookeeper_bridge'
+require 'zookeeper_bridge_depends'
 
-require 'chefspec'
-require 'chefspec/berkshelf'
-
-RSpec.configure do |config|
-  # Prohibit using the should syntax
-  config.expect_with :rspec do |spec|
-    spec.syntax = :expect
+describe Chef::ZookeeperBridge do
+  let(:zkb) { described_class.new('127.0.0.1:2181') }
+  before do
+    allow(ZK).to receive(:new).and_return('ZK')
   end
-
-  # Run specs in random order to surface order dependencies. If you find an
-  # order dependency and want to debug it, you can fix the order by providing
-  # the seed, which is printed after each run.
-  # --seed 1234
-  config.order = 'random'
-
-  # ChefSpec configuration
-  config.log_level = :fatal
-  config.color = true
-  config.formatter = :documentation
-  config.tty = true
+  context '#path_to_name_and_root_node' do
+    {
+      '/chef/127.0.0.1' => %w(/chef 127.0.0.1),
+      '/chef/127.0.0.1/status' => %w(/chef/127.0.0.1 status),
+      '127.0.0.1' => [nil, '127.0.0.1'],
+      '127.0.0.1/status' => [nil, '127.0.0.1/status']
+    }.each do |path, value|
+      it "should return #{value.inspect} from #{path}" do
+        expect(zkb.path_to_name_and_root_node(path)).to eq(value)
+      end
+    end
+  end
 end
-
-# at_exit { ChefSpec::Coverage.report! } # still in beta

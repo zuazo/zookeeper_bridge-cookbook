@@ -1,3 +1,4 @@
+# encoding: UTF-8
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
@@ -6,6 +7,7 @@ source 'https://rubygems.org'
 group :test, :development do
   gem 'rake'
   gem 'rspec', '~> 3.0'
+  gem 'zk', '~> 1.9'
 end
 
 group :test do
