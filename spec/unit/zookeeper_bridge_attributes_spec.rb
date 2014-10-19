@@ -25,8 +25,10 @@ require 'zookeeper_bridge_attributes'
 
 describe Chef::ZookeeperBridge::Attributes do
   let(:zkba) { described_class.new('127.0.0.1:2181') }
+  # let(:zk) { instance_double('ZK') }
+  let(:zk) { 'ZK' }
   before do
-    allow(ZK).to receive(:new).and_return('ZK')
+    allow(ZK).to receive(:new).and_return(zk)
   end
 
   context '#read' do
@@ -62,7 +64,7 @@ describe Chef::ZookeeperBridge::Attributes do
       )
     end
 
-    it 'read attributes should have higher privilege' do
+    it 'read attributes should have higher precedence' do
       attr = { 'banana' => { 'apple' => 'orange' } }
       read = { 'banana' => { 'apple' => 'canistel' } }
       allow(zkba).to receive(:zk_read_hash).and_return(read)
@@ -70,6 +72,63 @@ describe Chef::ZookeeperBridge::Attributes do
       expect(attr).to eq(
         'banana' => { 'apple' => 'canistel' }
       )
+    end
+
+  end
+
+  context '#write' do
+    before do
+      allow(zk).to receive(:exists?).with('/path').and_return(true)
+      allow(zk).to receive(:set).and_return(true)
+    end
+
+    it 'should merge without errors' do
+      attr = { 'banana' => { 'apple' => 'orange' } }
+      read = { 'dog' => { 'cow' => 'snake' } }
+      allow(zkba).to receive(:zk_read_hash).and_return(read)
+      expect(zkba.write('/path', attr)).to eq(true)
+    end
+
+    it 'should not change original hash' do
+      attr = { 'banana' => { 'apple' => 'orange' } }
+      read = { 'dog' => { 'cow' => 'snake' } }
+      allow(zkba).to receive(:zk_read_hash).and_return(read)
+      zkba.write('/path', attr)
+      expect(attr).to eq(attr)
+    end
+
+    it 'should merge non-conflicting hashes' do
+      attr = { 'banana' => { 'apple' => 'orange' } }
+      read = { 'dog' => { 'cow' => 'snake' } }
+      allow(zkba).to receive(:zk_read_hash).and_return(read)
+      expect(zk).to receive(:set).with('/path', {
+        'dog' => { 'cow' => 'snake' },
+        'banana' => { 'apple' => 'orange' }
+      }.to_json, anything)
+      zkba.write('/path', attr)
+    end
+
+    it 'should merge conflicting hashes' do
+      attr = { 'banana' => { 'apple' => 'orange' } }
+      read = { 'banana' => { 'babaco' => 'canistel' } }
+      allow(zkba).to receive(:zk_read_hash).and_return(read)
+      expect(zk).to receive(:set).with('/path', {
+        'banana' => {
+          'babaco' => 'canistel',
+          'apple' => 'orange'
+        }
+      }.to_json, anything)
+      zkba.write('/path', attr)
+    end
+
+    it 'read attributes should have lower precendence' do
+      attr = { 'banana' => { 'apple' => 'orange' } }
+      read = { 'banana' => { 'apple' => 'canistel' } }
+      allow(zkba).to receive(:zk_read_hash).and_return(read)
+      expect(zk).to receive(:set).with('/path', {
+        'banana' => { 'apple' => 'orange' }
+      }.to_json, anything)
+      zkba.write('/path', attr)
     end
 
   end
