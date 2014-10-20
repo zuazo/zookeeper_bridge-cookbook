@@ -19,4 +19,9 @@
 # limitations under the License.
 #
 
+if node['platform_family'] == 'debian'
+  default['apt']['compile_time_update'] = true
+end
+default['build-essential']['compiletime'] = true
+
 default['zookeeper_bridge']['server'] = '127.0.0.1:2181'
