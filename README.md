@@ -224,7 +224,7 @@ Used to read or write Chef Node attributes from or to ZooKeeper znode paths. The
 | path           | *name*                               | Znode path. The path must be absolute.
 | server         | `node['zookeeper_bridge']['server']` | ZooKeeper server address.
 | attribute      | `nil`                                | Node attribute object or a Ruby Hash. This should be something like `node['foo']` for **reading** and `node.normal['foo']` for **writing**.
-| merge          | *calculated*                         | Whether to merge hashes. This is `true` by default for `:read` action, which will merge the current node attributes with the attributes read from ZooKeeper. For `write` instead is `false` by default, which will not merge the current attributes saved in ZooKeeper with the node attributes to write, the data in ZooKeeper will be completely overwritten.
+| merge          | *calculated*                         | Whether to merge hashes. This is `true` by default for `:read` action, which will merge the current node attributes with the attributes read from ZooKeeper. For `:write` is `false` by default, which will not merge the current attributes saved in ZooKeeper with the node attributes to write, the data in ZooKeeper will be completely overwritten.
 | force_encoding | `nil` | Force character encoding. For example: `'UTF-8'`.
 
 ### zookeeper_bridge_attrs Examples
