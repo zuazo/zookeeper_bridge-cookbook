@@ -54,7 +54,7 @@ class Chef
       end
 
       def zk_merge_hash(path, attrs, key = nil, encoding = nil)
-        attrs = force_encoding(attributes, encoding) unless encoding.nil?
+        attrs = force_encoding(attrs, encoding) unless encoding.nil?
         orig_attrs, ver = zk_read_hash(path, encoding, true)
         if !key.nil?
           attrs = hash_merge(orig_attrs[key], attrs) if orig_attrs.key?(key)
