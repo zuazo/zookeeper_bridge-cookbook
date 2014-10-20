@@ -298,7 +298,7 @@ Now we can read and write apache attributes:
 zookeeper_bridge_attrs "/chef/#{node.name}/apache_attributes" do
   attribute node.override['apache']
   action :nothing
-end
+end.run_action(:read)
 
 # [...]
 
