@@ -33,7 +33,11 @@ class Chef
         Chef::Mixin::DeepMerge.hash_only_merge!(onto, with)
       end
 
-      def zk_read_hash(path, encoding = nil, force = false)
+      def zk_exist?(path)
+        @zk.exists?(path)
+      end
+
+      def zk_get_hash(path, encoding = nil, force = false)
         # TODO: raise different exceptions for connection errors
         attrs, stat = @zk.get(path)
         attrs = force_encoding(attrs, encoding) unless encoding.nil?
@@ -47,43 +51,34 @@ class Chef
         end
       end
 
-      def zk_write_hash(path, attrs, key = nil, encoding = nil)
+      def zk_create_hash(path, attrs, encoding = nil)
         attrs = force_encoding(attrs, encoding) unless encoding.nil?
-        attrs = { key => attrs } unless key.nil?
         !@zk.create(path, attrs.to_json).nil?
       end
 
-      def zk_merge_hash(path, attrs, key = nil, encoding = nil)
+      def zk_set_hash(path, attrs, merge, encoding = nil)
         attrs = force_encoding(attrs, encoding) unless encoding.nil?
-        orig_attrs, ver = zk_read_hash(path, encoding, true)
-        if !key.nil?
-          attrs = hash_merge(orig_attrs[key], attrs) if orig_attrs.key?(key)
-        else
-          attrs = hash_merge(orig_attrs, attrs)
-        end
+        orig_attrs, ver = zk_get_hash(path, encoding, true)
+        attrs = hash_merge(orig_attrs, attrs) if merge
         orig_attrs != attrs ? !@zk.set(path, attrs.to_json, ver).nil? : false
       end
 
       public
 
-      def read(path, attributes, key = nil, encoding = nil)
-        attrs, _version = zk_read_hash(path, encoding, false)
-        unless key.nil?
-          return false unless attrs.key?(key)
-          attrs = attrs[key] unless key.nil?
-        end
-        hash_merge!(attributes, attrs)
+      def read(path, attributes, merge, encoding = nil)
+        attrs, _version = zk_get_hash(path, encoding, false)
+        merge ? hash_merge!(attributes, attrs) : attributes.replace(attrs)
         true
       rescue ZkHashFormatError
         false
       end
 
-      def write(path, attributes, key = nil, encoding = nil)
+      def write(path, attributes, merge, encoding = nil)
         attributes = attributes.to_hash
-        if @zk.exists?(path) # TODO: we rly need a merge here?
-          zk_merge_hash(path, attributes, key, encoding)
+        if zk_exist?(path)
+          zk_set_hash(path, attributes, merge, encoding)
         else
-          zk_write_hash(path, attributes, key, encoding)
+          zk_create_hash(path, attributes, encoding)
         end
       end
     end # Attributes

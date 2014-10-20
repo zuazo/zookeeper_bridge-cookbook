@@ -28,12 +28,13 @@ action :read do
     fail ArgumentError, 'wrong node attribute: you should use writable node '\
       'attributes like node.defaut[...] or node.normal[...].'
   end
+  merge = new_resource.merge.nil? ? true : new_resource.merge
   zk_attrs = Chef::ZookeeperBridge::Attributes.new(server)
   new_resource.updated_by_last_action(
     zk_attrs.read(
       new_resource.path,
       new_resource.attribute,
-      new_resource.key,
+      merge,
       new_resource.force_encoding
     )
   )
@@ -52,12 +53,13 @@ action :write do
          "Wrong node attribute (#{attribute.class.name}): you should use "\
          'readable node attributes like node[...].'
   end
+  merge = new_resource.merge.nil? ? false : new_resource.merge
   zk_attrs = Chef::ZookeeperBridge::Attributes.new(server)
   new_resource.updated_by_last_action(
     zk_attrs.write(
       new_resource.path,
       attribute,
-      new_resource.key,
+      merge,
       new_resource.force_encoding
     )
   )
