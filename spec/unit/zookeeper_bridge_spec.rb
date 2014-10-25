@@ -33,7 +33,7 @@ describe Chef::ZookeeperBridge do
       '127.0.0.1' => [nil, '127.0.0.1'],
       '127.0.0.1/status' => [nil, '127.0.0.1/status']
     }.each do |path, value|
-      it "should return #{value.inspect} from #{path}" do
+      it "returns #{value.inspect} from #{path}" do
         expect(zkb.path_to_name_and_root_node(path)).to eq(value)
       end
     end

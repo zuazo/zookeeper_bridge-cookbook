@@ -36,14 +36,14 @@ describe Chef::ZookeeperBridge::Attributes do
     context 'without merge' do
       let(:merge) { false }
 
-      it 'should read without errors' do
+      it 'reads without errors' do
         attr = { 'banana' => { 'apple' => 'orange' } }
         read = { 'dog' => { 'cow' => 'snake' } }
         allow(zkba).to receive(:zk_get_hash).and_return(read)
         expect(zkba.read('/path', attr, merge)).to eq(true)
       end
 
-      it 'should not merge non-conflicting hashes' do
+      it 'does not merge non-conflicting hashes' do
         attr = { 'banana' => { 'apple' => 'orange' } }
         read = { 'dog' => { 'cow' => 'snake' } }
         allow(zkba).to receive(:zk_get_hash).and_return(read)
@@ -51,7 +51,7 @@ describe Chef::ZookeeperBridge::Attributes do
         expect(attr).to eq(read)
       end
 
-      it 'should not merge conflicting hashes' do
+      it 'does not merge conflicting hashes' do
         attr = { 'banana' => { 'apple' => 'orange' } }
         read = { 'banana' => { 'babaco' => 'canistel' } }
         allow(zkba).to receive(:zk_get_hash).and_return(read)
@@ -64,14 +64,14 @@ describe Chef::ZookeeperBridge::Attributes do
     context 'with merge' do
       let(:merge) { true }
 
-      it 'should read without errors' do
+      it 'reads without errors' do
         attr = { 'banana' => { 'apple' => 'orange' } }
         read = { 'dog' => { 'cow' => 'snake' } }
         allow(zkba).to receive(:zk_get_hash).and_return(read)
         expect(zkba.read('/path', attr, merge)).to eq(true)
       end
 
-      it 'should merge non-conflicting hashes' do
+      it 'merges non-conflicting hashes' do
         attr = { 'banana' => { 'apple' => 'orange' } }
         read = { 'dog' => { 'cow' => 'snake' } }
         allow(zkba).to receive(:zk_get_hash).and_return(read)
@@ -82,7 +82,7 @@ describe Chef::ZookeeperBridge::Attributes do
         )
       end
 
-      it 'should merge conflicting hashes' do
+      it 'merges conflicting hashes' do
         attr = { 'banana' => { 'apple' => 'orange' } }
         read = { 'banana' => { 'babaco' => 'canistel' } }
         allow(zkba).to receive(:zk_get_hash).and_return(read)
@@ -95,7 +95,7 @@ describe Chef::ZookeeperBridge::Attributes do
         )
       end
 
-      it 'read attributes should have higher precedence' do
+      it 'read attributes have higher precedence' do
         attr = { 'banana' => { 'apple' => 'orange' } }
         read = { 'banana' => { 'apple' => 'canistel' } }
         allow(zkba).to receive(:zk_get_hash).and_return(read)
@@ -117,14 +117,14 @@ describe Chef::ZookeeperBridge::Attributes do
     context 'without merge' do
       let(:merge) { false }
 
-      it 'should write without errors' do
+      it 'writes without errors' do
         attr = { 'banana' => { 'apple' => 'orange' } }
         read = { 'dog' => { 'cow' => 'snake' } }
         allow(zkba).to receive(:zk_get_hash).and_return(read)
         expect(zkba.write('/path', attr, merge)).to eq(true)
       end
 
-      it 'should not change original hash' do
+      it 'does not change original hash' do
         attr = { 'banana' => { 'apple' => 'orange' } }
         read = { 'dog' => { 'cow' => 'snake' } }
         allow(zkba).to receive(:zk_get_hash).and_return(read)
@@ -132,7 +132,7 @@ describe Chef::ZookeeperBridge::Attributes do
         expect(attr).to eq(attr)
       end
 
-      it 'should not merge non-conflicting hashes' do
+      it 'does not merge non-conflicting hashes' do
         attr = { 'banana' => { 'apple' => 'orange' } }
         read = { 'dog' => { 'cow' => 'snake' } }
         allow(zkba).to receive(:zk_get_hash).and_return(read)
@@ -140,7 +140,7 @@ describe Chef::ZookeeperBridge::Attributes do
         zkba.write('/path', attr, merge)
       end
 
-      it 'should not merge conflicting hashes' do
+      it 'does not merge conflicting hashes' do
         attr = { 'banana' => { 'apple' => 'orange' } }
         read = { 'banana' => { 'babaco' => 'canistel' } }
         allow(zkba).to receive(:zk_get_hash).and_return(read)
@@ -153,14 +153,14 @@ describe Chef::ZookeeperBridge::Attributes do
     context 'with merge' do
       let(:merge) { true }
 
-      it 'should write without errors' do
+      it 'writes without errors' do
         attr = { 'banana' => { 'apple' => 'orange' } }
         read = { 'dog' => { 'cow' => 'snake' } }
         allow(zkba).to receive(:zk_get_hash).and_return(read)
         expect(zkba.write('/path', attr, merge)).to eq(true)
       end
 
-      it 'should not change original hash' do
+      it 'does not change original hash' do
         attr = { 'banana' => { 'apple' => 'orange' } }
         read = { 'dog' => { 'cow' => 'snake' } }
         allow(zkba).to receive(:zk_get_hash).and_return(read)
@@ -168,7 +168,7 @@ describe Chef::ZookeeperBridge::Attributes do
         expect(attr).to eq(attr)
       end
 
-      it 'should merge non-conflicting hashes' do
+      it 'merges non-conflicting hashes' do
         attr = { 'banana' => { 'apple' => 'orange' } }
         read = { 'dog' => { 'cow' => 'snake' } }
         allow(zkba).to receive(:zk_get_hash).and_return(read)
@@ -179,7 +179,7 @@ describe Chef::ZookeeperBridge::Attributes do
         zkba.write('/path', attr, merge)
       end
 
-      it 'should merge conflicting hashes' do
+      it 'merges conflicting hashes' do
         attr = { 'banana' => { 'apple' => 'orange' } }
         read = { 'banana' => { 'babaco' => 'canistel' } }
         allow(zkba).to receive(:zk_get_hash).and_return(read)
@@ -192,7 +192,7 @@ describe Chef::ZookeeperBridge::Attributes do
         zkba.write('/path', attr, merge)
       end
 
-      it 'read attributes should have lower precendence' do
+      it 'read attributes have lower precendence' do
         attr = { 'banana' => { 'apple' => 'orange' } }
         read = { 'banana' => { 'apple' => 'canistel' } }
         allow(zkba).to receive(:zk_get_hash).and_return(read)

@@ -43,17 +43,17 @@ describe 'zookeeper_bridge::chef_handler' do
     end
   end
 
-  it 'should include zookeeper_bridge::depends recipe' do
+  it 'includes zookeeper_bridge::depends recipe' do
     expect(chef_run).to include_recipe('zookeeper_bridge::depends')
   end
 
-  it 'should enable zookeeper chef handler' do
+  it 'enablek zookeeper chef handler' do
     source = "#{FakeGemSpecification.new.lib_dirs_glob}/chef/handler/zookeeper"
     expect(chef_run).to enable_chef_handler('Chef::Handler::ZookeeperHandler')
       .with_source(source)
   end
 
-  it 'should trigget start handlers' do
+  it 'triggers start handlers' do
     expect(chef_run).to run_ruby_block('trigger_start_handlers')
   end
 end

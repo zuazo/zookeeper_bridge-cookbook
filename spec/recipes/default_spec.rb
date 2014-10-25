@@ -22,7 +22,7 @@ require 'spec_helper'
 describe 'zookeeper_bridge::default' do
   let(:chef_run) { ChefSpec::SoloRunner.new.converge(described_recipe) }
 
-  it 'should include zookeeper_bridge::depends recipe' do
+  it 'includes zookeeper_bridge::depends recipe' do
     expect(chef_run).to include_recipe('zookeeper_bridge::depends')
   end
 end

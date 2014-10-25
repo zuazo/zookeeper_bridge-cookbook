@@ -27,15 +27,15 @@ describe 'zookeeper_bridge::depends' do
     end.converge(described_recipe)
   end
 
-  it 'should include build-essential recipe' do
+  it 'includes build-essential recipe' do
     expect(chef_run).to include_recipe('build-essential')
   end
 
-  it 'should install zk gem' do
+  it 'installs zk gem' do
     expect(chef_run).to install_chef_gem('zk')
   end
 
-  it 'should install chef-handler-zookeeper gem' do
+  it 'installs chef-handler-zookeeper gem' do
     expect(chef_run).to install_chef_gem('chef-handler-zookeeper')
       .with_version(version)
   end
