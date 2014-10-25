@@ -3,7 +3,7 @@ Description
 [![Cookbook Version](https://img.shields.io/cookbook/v/zookeeper_bridge.svg?style=flat)](https://supermarket.getchef.com/cookbooks/zookeeper_bridge)
 [![Dependency Status](http://img.shields.io/gemnasium/onddo/zookeeper_bridge-cookbook.svg?style=flat)](https://gemnasium.com/onddo/zookeeper_bridge-cookbook)
 [![Code Climate](http://img.shields.io/codeclimate/github/onddo/zookeeper_bridge-cookbook.svg?style=flat)](https://codeclimate.com/github/onddo/zookeeper_bridge-cookbook)
-[![Build Status](http://img.shields.io/travis/onddo/zookeeper_bridge-cookbook.svg?style=flat)](https://travis-ci.org/onddo/zookeeper_bridge-cookbook)
+[![Build Status](http://img.shields.io/travis/onddo/zookeeper_bridge-cookbook/0.2.0.svg?style=flat)](https://travis-ci.org/onddo/zookeeper_bridge-cookbook)
 
 Chef `zookeeper_bridge` cookbook, used to help integrating the *Chef Run* with ZooKeeper.
 
