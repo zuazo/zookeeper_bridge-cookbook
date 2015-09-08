@@ -1,9 +1,9 @@
 Description
 ===========
 [![Cookbook Version](https://img.shields.io/cookbook/v/zookeeper_bridge.svg?style=flat)](https://supermarket.chef.io/cookbooks/zookeeper_bridge)
-[![Dependency Status](http://img.shields.io/gemnasium/onddo/zookeeper_bridge-cookbook.svg?style=flat)](https://gemnasium.com/onddo/zookeeper_bridge-cookbook)
-[![Code Climate](http://img.shields.io/codeclimate/github/onddo/zookeeper_bridge-cookbook.svg?style=flat)](https://codeclimate.com/github/onddo/zookeeper_bridge-cookbook)
-[![Build Status](http://img.shields.io/travis/onddo/zookeeper_bridge-cookbook.svg?style=flat)](https://travis-ci.org/onddo/zookeeper_bridge-cookbook)
+[![Dependency Status](http://img.shields.io/gemnasium/zuazo/zookeeper_bridge-cookbook.svg?style=flat)](https://gemnasium.com/zuazo/zookeeper_bridge-cookbook)
+[![Code Climate](http://img.shields.io/codeclimate/github/zuazo/zookeeper_bridge-cookbook.svg?style=flat)](https://codeclimate.com/github/zuazo/zookeeper_bridge-cookbook)
+[![Build Status](http://img.shields.io/travis/zuazo/zookeeper_bridge-cookbook.svg?style=flat)](https://travis-ci.org/zuazo/zookeeper_bridge-cookbook)
 
 Chef `zookeeper_bridge` cookbook, used to help integrating the *Chef Run* with ZooKeeper.
 
@@ -34,7 +34,7 @@ This cookbook has been tested on the following platforms:
 * RedHat
 * Ubuntu
 
-Please, [let us know](https://github.com/onddo/zookeeper_bridge-cookbook/issues/new?title=I%20have%20used%20it%20successfully%20on%20...) if you use it successfully on any other platform.
+Please, [let us know](https://github.com/zuazo/zookeeper_bridge-cookbook/issues/new?title=I%20have%20used%20it%20successfully%20on%20...) if you use it successfully on any other platform.
 
 ## Required Cookbooks
 
@@ -395,24 +395,24 @@ Remember that this script has some limitations, so use it with caution.
 zookeeper_bridge_cli 'create /test some_random_data'
 ```
 
-This resource is currently used in the integration tests. See the [zookeeper_bridge_test](https://github.com/onddo/zookeeper_bridge-cookbook/blob/master/test/cookbooks/zookeeper_bridge_test) cookbook recipes for more usage examples.
+This resource is currently used in the integration tests. See the [zookeeper_bridge_test](https://github.com/zuazo/zookeeper_bridge-cookbook/blob/master/test/cookbooks/zookeeper_bridge_test) cookbook recipes for more usage examples.
 
 Testing
 =======
 
-See [TESTING.md](https://github.com/onddo/zookeeper_bridge-cookbook/blob/master/TESTING.md).
+See [TESTING.md](https://github.com/zuazo/zookeeper_bridge-cookbook/blob/master/TESTING.md).
 
 Contributing
 ============
 
-Please do not hesitate to [open an issue](https://github.com/onddo/zookeeper_bridge-cookbook/issues/new) with any questions or problems.
+Please do not hesitate to [open an issue](https://github.com/zuazo/zookeeper_bridge-cookbook/issues/new) with any questions or problems.
 
-See [CONTRIBUTING.md](https://github.com/onddo/zookeeper_bridge-cookbook/blob/master/CONTRIBUTING.md).
+See [CONTRIBUTING.md](https://github.com/zuazo/zookeeper_bridge-cookbook/blob/master/CONTRIBUTING.md).
 
 TODO
 ====
 
-See [TODO.md](https://github.com/onddo/zookeeper_bridge-cookbook/blob/master/TODO.md).
+See [TODO.md](https://github.com/zuazo/zookeeper_bridge-cookbook/blob/master/TODO.md).
 
 
 License and Author
@@ -420,8 +420,9 @@ License and Author
 
 |                      |                                          |
 |:---------------------|:-----------------------------------------|
-| **Author:**          | [Xabier de Zuazo](https://github.com/zuazo) (<xabier@onddo.com>)
-| **Copyright:**       | Copyright (c) 2013-2014, Onddo Labs, SL. (www.onddo.com)
+| **Author:**          | [Xabier de Zuazo](https://github.com/zuazo) (<xabier@zuazo.org>)
+| **Copyright:**       | Copyright (c) 2015, Xabier de Zuazo
+| **Copyright:**       | Copyright (c) 2013-2014, Onddo Labs, SL.
 | **License:**         | Apache License, Version 2.0
 
     Licensed under the Apache License, Version 2.0 (the "License");
