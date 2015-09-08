@@ -27,6 +27,13 @@ description 'Cookbook used to help integrating the Chef Run with ZooKeeper: '\
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
 version '0.3.0' # WiP
 
+if respond_to?(:source_url)
+  source_url "https://github.com/zuazo/#{name}-cookbook"
+end
+if respond_to?(:issues_url)
+  issues_url "https://github.com/zuazo/#{name}-cookbook/issues"
+end
+
 supports 'amazon'
 supports 'centos'
 supports 'debian'
