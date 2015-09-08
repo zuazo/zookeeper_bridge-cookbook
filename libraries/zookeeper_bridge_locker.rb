@@ -31,7 +31,7 @@ class Chef
         lock = klass.send(:new, *args)
         lock.with_lock(wait: wait) do
           Chef::Log.debug(
-            "Zookeeper Bridge #{caller[0].to_s.gsub('_', ' ')} in \"#{path}\""
+            "Zookeeper Bridge #{caller[0].to_s.tr('_', ' ')} in \"#{path}\""
           )
           block.call
         end

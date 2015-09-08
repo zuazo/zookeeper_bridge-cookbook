@@ -32,7 +32,6 @@ describe Chef::ZookeeperBridge::Attributes do
   end
 
   context '#read' do
-
     context 'without merge' do
       let(:merge) { false }
 
@@ -58,7 +57,6 @@ describe Chef::ZookeeperBridge::Attributes do
         zkba.read('/path', attr, merge)
         expect(attr).to eq(read)
       end
-
     end # context without merge
 
     context 'with merge' do
@@ -104,7 +102,6 @@ describe Chef::ZookeeperBridge::Attributes do
           'banana' => { 'apple' => 'canistel' }
         )
       end
-
     end # context with merge
   end
 
@@ -147,7 +144,6 @@ describe Chef::ZookeeperBridge::Attributes do
         expect(zk).to receive(:set).with('/path', attr.to_json, anything)
         zkba.write('/path', attr, merge)
       end
-
     end # context without merge
 
     context 'with merge' do
@@ -201,7 +197,6 @@ describe Chef::ZookeeperBridge::Attributes do
         }.to_json, anything)
         zkba.write('/path', attr, merge)
       end
-
     end # context with merge
   end
 end

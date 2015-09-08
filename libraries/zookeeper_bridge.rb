@@ -51,7 +51,7 @@ class Chef
 
     # TODO: avoid #dirname & #basename to support non-unix platforms
     def path_to_name_and_root_node(path)
-      path = path.gsub(/\/*$/, '')
+      path = path.gsub(%r{/*$}, '')
       result = []
       result[0] = path[0] == '/' ? ::File.dirname(path) : nil
       result[0] = nil if result[0] == '.'
