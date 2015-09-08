@@ -3,7 +3,7 @@ Testing
 
 ## Required Cookbooks
 
-* [zookeeper](https://supermarket.getchef.com/cookbooks/zookeeper) `>= 2.1.1`
+* [zookeeper](https://supermarket.chef.io/cookbooks/zookeeper) `>= 2.1.1`
 
 ## Required Gems
 

@@ -1,6 +1,6 @@
 Description
 ===========
-[![Cookbook Version](https://img.shields.io/cookbook/v/zookeeper_bridge.svg?style=flat)](https://supermarket.getchef.com/cookbooks/zookeeper_bridge)
+[![Cookbook Version](https://img.shields.io/cookbook/v/zookeeper_bridge.svg?style=flat)](https://supermarket.chef.io/cookbooks/zookeeper_bridge)
 [![Dependency Status](http://img.shields.io/gemnasium/onddo/zookeeper_bridge-cookbook.svg?style=flat)](https://gemnasium.com/onddo/zookeeper_bridge-cookbook)
 [![Code Climate](http://img.shields.io/codeclimate/github/onddo/zookeeper_bridge-cookbook.svg?style=flat)](https://codeclimate.com/github/onddo/zookeeper_bridge-cookbook)
 [![Build Status](http://img.shields.io/travis/onddo/zookeeper_bridge-cookbook.svg?style=flat)](https://travis-ci.org/onddo/zookeeper_bridge-cookbook)
@@ -38,8 +38,8 @@ Please, [let us know](https://github.com/onddo/zookeeper_bridge-cookbook/issues/
 
 ## Required Cookbooks
 
-* [build-essential](https://supermarket.getchef.com/cookbooks/build-essential) `~> 2.0`
-* [chef_handler](https://supermarket.getchef.com/cookbooks/chef_handler)
+* [build-essential](https://supermarket.chef.io/cookbooks/build-essential) `~> 2.0`
+* [chef_handler](https://supermarket.chef.io/cookbooks/chef_handler)
 
 ## Required Applications
 
@@ -268,7 +268,7 @@ zookeeper_bridge_attrs "/chef/#{node.name}/write_attributes" do
 end
 ```
 
-**Note:** You need to understand how [compile and converge phases work on Chef Run](http://docs.opscode.com/essentials_nodes_chef_run.html) to know when to use `#run_action`.
+**Note:** You need to understand how [compile and converge phases work on Chef Run](http://docs.chef.io/essentials_nodes_chef_run.html) to know when to use `#run_action`.
 
 ### Reading and Writing Apache Cookbook Attributes
 
