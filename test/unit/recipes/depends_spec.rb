@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 
-require 'spec_helper'
+require_relative '../spec_helper'
 
 describe 'zookeeper_bridge::depends' do
   let(:version) { '7.7.7' }

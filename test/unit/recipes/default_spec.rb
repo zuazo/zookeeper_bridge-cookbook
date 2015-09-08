@@ -17,29 +17,12 @@
 # limitations under the License.
 #
 
-$LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'libraries'))
+require_relative '../spec_helper'
 
-require 'chefspec'
-require 'chefspec/berkshelf'
-require 'should_not/rspec'
+describe 'zookeeper_bridge::default' do
+  let(:chef_run) { ChefSpec::SoloRunner.new.converge(described_recipe) }
 
-RSpec.configure do |config|
-  # Prohibit using the should syntax
-  config.expect_with :rspec do |spec|
-    spec.syntax = :expect
+  it 'includes zookeeper_bridge::depends recipe' do
+    expect(chef_run).to include_recipe('zookeeper_bridge::depends')
   end
-
-  # Run specs in random order to surface order dependencies. If you find an
-  # order dependency and want to debug it, you can fix the order by providing
-  # the seed, which is printed after each run.
-  # --seed 1234
-  config.order = 'random'
-
-  # ChefSpec configuration
-  config.log_level = :fatal
-  config.color = true
-  config.formatter = :documentation
-  config.tty = true
 end
-
-# at_exit { ChefSpec::Coverage.report! } # still in beta

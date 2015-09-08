@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 
-require 'spec_helper'
+require_relative '../spec_helper'
 
 # Fake class used to mock Gem and Gem::Specification classes
 class FakeGemSpecification

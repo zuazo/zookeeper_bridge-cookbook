@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 
-require 'spec_helper'
+require_relative '../spec_helper'
 require 'zk'
 require 'zookeeper_bridge'
 require 'zookeeper_bridge_depends'
