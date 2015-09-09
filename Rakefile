@@ -123,7 +123,7 @@ namespace :integration do
 end
 
 desc 'Run Test Kitchen integration tests'
-task integration: %w(integration:vagrant)
+task :integration, [:regexp, :action] => %w(integration:vagrant)
 
 desc 'Run doc, style, unit and integration tests'
 task default: %w(doc style unit integration)
