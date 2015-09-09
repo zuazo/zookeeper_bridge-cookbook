@@ -27,6 +27,10 @@ describe 'zookeeper_bridge::depends' do
     end.converge(described_recipe)
   end
 
+  it 'installs tar' do
+    expect(chef_run).to install_package('tar').at_compile_time
+  end
+
   it 'includes build-essential recipe' do
     expect(chef_run).to include_recipe('build-essential')
   end

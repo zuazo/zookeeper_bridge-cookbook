@@ -19,6 +19,10 @@
 # limitations under the License.
 #
 
+package 'tar' do
+  action :install
+end.run_action(:install)
+
 include_recipe 'build-essential'
 
 chef_gem 'zk' # not required in zookeeper_handler recipe, but does not harm
