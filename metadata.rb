@@ -25,7 +25,7 @@ license 'Apache 2.0'
 description 'Cookbook used to help integrating the Chef Run with ZooKeeper: '\
   'chef handler, locks, semaphores, ...'
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
-version '0.3.0'
+version '0.4.0' # WiP
 
 if respond_to?(:source_url)
   source_url "https://github.com/zuazo/#{name}-cookbook"

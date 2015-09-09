@@ -4,7 +4,7 @@ ZooKeeper Bridge Cookbook
 [![GitHub Source](https://img.shields.io/badge/source-GitHub-blue.svg?style=flat)](https://github.com/zuazo/zookeeper_bridge-cookbook)
 [![Dependency Status](http://img.shields.io/gemnasium/zuazo/zookeeper_bridge-cookbook.svg?style=flat)](https://gemnasium.com/zuazo/zookeeper_bridge-cookbook)
 [![Code Climate](http://img.shields.io/codeclimate/github/zuazo/zookeeper_bridge-cookbook.svg?style=flat)](https://codeclimate.com/github/zuazo/zookeeper_bridge-cookbook)
-[![Build Status](http://img.shields.io/travis/zuazo/zookeeper_bridge-cookbook/0.3.0.svg?style=flat)](https://travis-ci.org/zuazo/zookeeper_bridge-cookbook)
+[![Build Status](http://img.shields.io/travis/zuazo/zookeeper_bridge-cookbook.svg?style=flat)](https://travis-ci.org/zuazo/zookeeper_bridge-cookbook)
 
 [Chef](https://www.chef.io/) `zookeeper_bridge` cookbook, used to help integrating the *Chef Run* with ZooKeeper.
 
