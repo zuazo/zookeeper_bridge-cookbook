@@ -3,6 +3,27 @@ CHANGELOG for zookeeper_bridge
 
 This file is used to list changes made in each version of the `zookeeper_bridge` cookbook.
 
+## v0.3.0 (2015-09-09)
+
+* Install `tar` package.
+* Update chef links to use *chef.io* domain.
+* Update contact information and links after migration.
+* metadata: Add `source_url` and `issues_url` links.
+* Remove Fedora and RedHat support.
+
+* Documentation:
+ * Move ChefSpec matchers documentation to the README.
+ * README:
+  * Improve title and description.
+  * Add GitHub badge.
+
+* Testing:
+ * Test files updates: Berksfile, Gemfile, Guardfile, Rakefile, RuboCop `0.34.0`.
+ * Move ChefSpec tests to *test/unit*.
+ * Travis CI: Run tests against Chef 11 and Chef 12.
+ * .kitchen.yml: Update platform versions.
+ * Use `runit` cookbook `1.6.0` to avoid issue [hw-cookbooks/runit#142](https://github.com/hw-cookbooks/runit/issues/142).
+
 ## v0.2.0 (2014-10-25)
 
 * Add `zookeeper_bridge_attrs#merge` property.
