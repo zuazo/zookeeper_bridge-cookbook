@@ -30,8 +30,6 @@ This cookbook has been tested on the following platforms:
 * Amazon
 * CentOS
 * Debian
-* Fedora
-* RedHat
 * Ubuntu
 
 Please, [let us know](https://github.com/zuazo/zookeeper_bridge-cookbook/issues/new?title=I%20have%20used%20it%20successfully%20on%20...) if you use it successfully on any other platform.
