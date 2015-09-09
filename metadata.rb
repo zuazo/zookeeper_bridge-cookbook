@@ -37,8 +37,6 @@ end
 supports 'amazon'
 supports 'centos'
 supports 'debian'
-supports 'fedora'
-supports 'redhat'
 supports 'ubuntu'
 
 depends 'build-essential', '~> 2.0'
