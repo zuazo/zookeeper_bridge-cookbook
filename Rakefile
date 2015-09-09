@@ -11,7 +11,6 @@
 # rake doc                      # Generate Ruby documentation
 # rake integration                         # Run Test Kitchen integration tests
 # rake integration:cloud[regexp,action]    # Run Kitchen tests in the cloud
-# rake integration:docker[regexp,action]   # Run Kitchen tests using docker
 # rake integration:vagrant[regexp,action]  # Run Kitchen tests using vagrant
 # rake style                    # Run all style checks
 # rake style:chef               # Run Chef style checks using foodcritic
@@ -24,15 +23,6 @@
 #
 
 require 'bundler/setup'
-
-# Checks if we are inside Travis CI.
-#
-# @return [Boolean] whether we are inside Travis CI.
-# @example
-#   travis? #=> false
-def travis?
-  ENV['TRAVIS'] == 'true'
-end
 
 desc 'Clean some generated files'
 task :clean do
@@ -126,11 +116,6 @@ namespace :integration do
     run_kitchen(args.action, args.regexp)
   end
 
-  desc 'Run Test Kitchen integration tests using docker'
-  task :docker, [:regexp, :action] do |_t, args|
-    run_kitchen(args.action, args.regexp, local_config: '.kitchen.docker.yml')
-  end
-
   desc 'Run Test Kitchen integration tests in the cloud'
   task :cloud, [:regexp, :action] do |_t, args|
     run_kitchen(args.action, args.regexp, local_config: '.kitchen.cloud.yml')
@@ -138,7 +123,7 @@ namespace :integration do
 end
 
 desc 'Run Test Kitchen integration tests'
-task integration: travis? ? %w(integration:docker) : %w(integration:vagrant)
+task integration: %w(integration:vagrant)
 
 desc 'Run doc, style, unit and integration tests'
 task default: %w(doc style unit integration)
